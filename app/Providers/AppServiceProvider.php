@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Http\Request;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,22 +15,16 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
+    /**
+     * Bootstrap any application services.
+     */
     public function boot(): void
     {
-        // Konfigurasi untuk Environment Production
-        if (app()->isProduction()) {
-            // 1. Paksa Generate Link HTTPS
+        // Paksa HTTPS jika aplikasi berjalan di environment 'production'
+        // Ini penting untuk mengatasi masalah Mixed Content dan Redirect Loop/Error 405
+        // saat aplikasi berada di belakang Reverse Proxy (Cloudflare, Nginx, dll).
+        if ($this->app->environment('production')) {
             URL::forceScheme('https');
-
-            $request = app('request');
-            $request->setTrustedProxies(
-                ['*'], // Trust any proxy
-                Request::HEADER_X_FORWARDED_FOR |
-                Request::HEADER_X_FORWARDED_HOST |
-                Request::HEADER_X_FORWARDED_PORT |
-                Request::HEADER_X_FORWARDED_PROTO |
-                Request::HEADER_X_FORWARDED_AWS_ELB
-            );
         }
     }
 }

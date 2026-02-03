@@ -13,10 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         // 1. TRUST PROXIES (WAJIB UNTUK DEPLOY)
-        // Memberitahu Laravel untuk mempercayai header HTTPS dari server hosting/proxy
+        // Trust semua proxy agar Laravel sadar dia diakses via HTTPS
         $middleware->trustProxies(at: '*');
 
-        // Pastikan header yang dibaca lengkap
+        // Baca semua jenis header forward
         $middleware->trustProxies(headers: Request::HEADER_X_FORWARDED_FOR |
             Request::HEADER_X_FORWARDED_HOST |
             Request::HEADER_X_FORWARDED_PORT |
@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             Request::HEADER_X_FORWARDED_AWS_ELB
         );
 
-        // 2. Middleware Inertia (Jangan dihapus)
+        // 2. Middleware Inertia
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
