@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Http\Request;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +23,13 @@ class AppServiceProvider extends ServiceProvider
         // Force HTTPS di production atau domain domcloud
         if ($this->app->environment('production') || str_contains(request()->getHost(), 'domcloud')) {
             URL::forceScheme('https');
+
+            // Set secure cookies untuk session
+            config([
+                'session.secure' => true,
+                'session.http_only' => true,
+                'session.same_site' => 'lax',
+            ]);
         }
     }
 }
