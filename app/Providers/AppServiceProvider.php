@@ -20,16 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Force HTTPS di production atau domain domcloud
-        if ($this->app->environment('production') || str_contains(request()->getHost(), 'domcloud')) {
+        // Paksa HTTPS jika aplikasi berjalan di environment 'production'
+        // Ini penting untuk mengatasi masalah Mixed Content dan Redirect Loop/Error 405
+        // saat aplikasi berada di belakang Reverse Proxy (Cloudflare, Nginx, dll).
+        if ($this->app->environment('production')) {
             URL::forceScheme('https');
-
-            // Set secure cookies untuk session
-            config([
-                'session.secure' => true,
-                'session.http_only' => true,
-                'session.same_site' => 'lax',
-            ]);
         }
     }
 }
