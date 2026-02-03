@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Http\Request;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,15 +16,22 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        // Paksa HTTPS jika aplikasi berjalan di environment 'production' atau 'local' (jika pakai ngrok)
-        // Anda bisa menghapus kondisi if() jika ingin memaksa di semua environment
+        // Konfigurasi untuk Environment Production
         if (app()->isProduction()) {
+            // 1. Paksa Generate Link HTTPS
             URL::forceScheme('https');
+
+            $request = app('request');
+            $request->setTrustedProxies(
+                ['*'], // Trust any proxy
+                Request::HEADER_X_FORWARDED_FOR |
+                Request::HEADER_X_FORWARDED_HOST |
+                Request::HEADER_X_FORWARDED_PORT |
+                Request::HEADER_X_FORWARDED_PROTO |
+                Request::HEADER_X_FORWARDED_AWS_ELB
+            );
         }
     }
 }
