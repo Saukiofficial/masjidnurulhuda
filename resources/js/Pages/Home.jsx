@@ -555,7 +555,7 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                     <div className="border-t border-white/10 pt-4 sm:pt-6">
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                             <p className="text-emerald-200 text-center text-[10px] sm:text-sm">
-                                &copy; {new Date().getFullYear()} <span className="font-semibold text-white">Masjid Nurul Huda</span>. Developer by Kyysolutions
+                                &copy; {new Date().getFullYear()} <span className="font-semibold text-white">Masjid Nurul Huda</span>. Developer by Sauki Annaim
                             </p>
                             <div className="flex gap-4 sm:gap-6 text-emerald-200 text-xs">
                                 <a href="#" className="hover:text-amber-300 transition">Tentang</a>
