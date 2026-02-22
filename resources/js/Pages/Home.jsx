@@ -3,12 +3,17 @@ import { Head } from '@inertiajs/react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { Wallet, TrendingUp, TrendingDown, Clock, Activity, Building2, X, Copy, FileText, Download, Eye, Moon, Sun } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Clock, Activity, Building2, X, Copy, FileText, Eye, Calendar, Filter } from 'lucide-react';
 
-export default function Home({ stats, renovationProgress, chartData, recentExpenses, bankAccounts }) {
+export default function Home({ stats, renovationProgress, chartData, recentActivities, bankAccounts }) {
 
-    // State untuk Modal Donasi
+    // States untuk Modals
     const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    
+    // States untuk filter tanggal
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
 
     // Helper untuk format Rupiah
     const formatRupiah = (number) => {
@@ -24,6 +29,21 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text);
         alert('Nomor rekening berhasil disalin!');
+    };
+
+    // Fungsi submit cetak laporan custom
+    const handleCustomReport = () => {
+        if (!startDate || !endDate) {
+            alert('Mohon pilih Tanggal Mulai dan Tanggal Akhir terlebih dahulu.');
+            return;
+        }
+        if (new Date(startDate) > new Date(endDate)) {
+            alert('Tanggal Mulai tidak boleh lebih besar dari Tanggal Akhir.');
+            return;
+        }
+        // Buka tab baru dengan parameter tanggal untuk trigger PDF di Controller
+        window.open(`/laporan/custom?start_date=${startDate}&end_date=${endDate}&stream=true`, '_blank');
+        setIsReportModalOpen(false); // Tutup modal setelah klik
     };
 
     return (
@@ -61,12 +81,9 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
                             </div>
                             <div className="flex gap-2 sm:gap-3 items-center flex-wrap">
                                 <div className="hidden lg:flex gap-2">
-                                    <a href="/laporan/bulanan?stream=true" className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-emerald-100 hover:text-white rounded-lg transition text-sm font-medium border border-white/20" target="_blank">
-                                        <Eye size={16} /> Laporan Bulanan
-                                    </a>
-                                    <a href="/laporan/mingguan?stream=true" className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-emerald-100 hover:text-white rounded-lg transition text-sm font-medium border border-white/20" target="_blank">
-                                        <Eye size={16} /> Laporan Jumat
-                                    </a>
+                                    <button onClick={() => setIsReportModalOpen(true)} className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-emerald-100 hover:text-white rounded-lg transition text-sm font-medium border border-white/20">
+                                        <Filter size={16} /> Filter Laporan
+                                    </button>
                                 </div>
                                 <button
                                     onClick={() => setIsDonationModalOpen(true)}
@@ -258,7 +275,7 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 sm:mb-16">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
 
-                    {/* Grafik Keuangan - 2 kolom */}
+                    {/* Grafik Keuangan */}
                     <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl p-6 sm:p-8 border-t-4 border-amber-400">
                         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                             <div>
@@ -295,43 +312,12 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                                        <XAxis
-                                            dataKey="name"
-                                            tick={{ fill: '#6b7280', fontSize: 12 }}
-                                            tickLine={{ stroke: '#e5e7eb' }}
-                                        />
-                                        <YAxis
-                                            tick={{ fill: '#6b7280', fontSize: 12 }}
-                                            tickLine={{ stroke: '#e5e7eb' }}
-                                            tickFormatter={(value) => `${(value / 1000000).toFixed(0)}jt`}
-                                        />
-                                        <Tooltip
-                                            formatter={(value) => formatRupiah(value)}
-                                            contentStyle={{
-                                                backgroundColor: 'white',
-                                                border: '2px solid #d1d5db',
-                                                borderRadius: '12px',
-                                                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
-                                            }}
-                                        />
-                                        <Legend
-                                            wrapperStyle={{ paddingTop: '20px' }}
-                                            iconType="circle"
-                                        />
-                                        <Bar
-                                            dataKey="pemasukan"
-                                            fill="url(#colorIncome)"
-                                            name="Pemasukan"
-                                            radius={[8, 8, 0, 0]}
-                                            maxBarSize={60}
-                                        />
-                                        <Bar
-                                            dataKey="pengeluaran"
-                                            fill="url(#colorExpense)"
-                                            name="Pengeluaran"
-                                            radius={[8, 8, 0, 0]}
-                                            maxBarSize={60}
-                                        />
+                                        <XAxis dataKey="name" tick={{ fill: '#6b7280', fontSize: 12 }} tickLine={{ stroke: '#e5e7eb' }} />
+                                        <YAxis tick={{ fill: '#6b7280', fontSize: 12 }} tickLine={{ stroke: '#e5e7eb' }} tickFormatter={(value) => `${(value / 1000000).toFixed(0)}jt`} />
+                                        <Tooltip formatter={(value) => formatRupiah(value)} contentStyle={{ backgroundColor: 'white', border: '2px solid #d1d5db', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                                        <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="circle" />
+                                        <Bar dataKey="pemasukan" fill="url(#colorIncome)" name="Pemasukan" radius={[8, 8, 0, 0]} maxBarSize={60} />
+                                        <Bar dataKey="pengeluaran" fill="url(#colorExpense)" name="Pengeluaran" radius={[8, 8, 0, 0]} maxBarSize={60} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             ) : (
@@ -363,7 +349,7 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
                         </div>
                     </div>
 
-                    {/* Aktivitas Terkini - 1 kolom */}
+                    {/* Aktivitas Terkini */}
                     <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border-t-4 border-teal-400">
                         <div className="flex items-center justify-between mb-6">
                             <div>
@@ -371,49 +357,58 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
                                     <div className="w-1.5 h-8 bg-gradient-to-b from-teal-400 to-teal-600 rounded-full"></div>
                                     Aktivitas Terkini
                                 </h3>
-                                <p className="text-sm text-gray-500 mt-1 ml-4">Pengeluaran Terakhir</p>
+                                <p className="text-sm text-gray-500 mt-1 ml-4">Transaksi Terakhir</p>
                             </div>
                         </div>
 
                         <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                            {recentExpenses && recentExpenses.length > 0 ? (
-                                recentExpenses.map((expense, index) => (
-                                    <div key={index} className="group bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-100 hover:border-teal-200 hover:shadow-lg transition-all duration-300">
-                                        <div className="flex items-start gap-3">
-                                            <div className="bg-gradient-to-br from-teal-100 to-teal-200 p-2.5 rounded-lg group-hover:scale-110 transition-transform">
-                                                <FileText className="w-5 h-5 text-teal-700" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-start justify-between gap-2 mb-2">
-                                                    <p className="text-xs text-gray-500 font-medium">
-                                                        {new Date(expense.date).toLocaleDateString('id-ID', {
-                                                            day: 'numeric',
-                                                            month: 'short',
-                                                            year: 'numeric'
-                                                        })}
-                                                    </p>
+                            {recentActivities && recentActivities.length > 0 ? (
+                                recentActivities.map((activity) => {
+                                    const isIncome = activity.type === 'income';
+                                    
+                                    return (
+                                        <div key={activity.id} className={`group bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-100 transition-all duration-300 ${isIncome ? 'hover:border-emerald-300 hover:shadow-emerald-100' : 'hover:border-red-200 hover:shadow-red-50'} hover:shadow-lg`}>
+                                            <div className="flex items-start gap-3">
+                                                <div className={`p-2.5 rounded-lg group-hover:scale-110 transition-transform ${isIncome ? 'bg-gradient-to-br from-emerald-100 to-emerald-200' : 'bg-gradient-to-br from-red-100 to-red-200'}`}>
+                                                    {isIncome ? (
+                                                        <TrendingUp className="w-5 h-5 text-emerald-700" />
+                                                    ) : (
+                                                        <FileText className="w-5 h-5 text-red-700" />
+                                                    )}
                                                 </div>
-                                                <h4 className="text-sm sm:text-base font-bold text-gray-800 mb-2 group-hover:text-teal-700 transition-colors leading-tight">
-                                                    {expense.title}
-                                                </h4>
-                                                <div className="flex justify-between items-center flex-wrap gap-2">
-                                                    <span className="text-xs bg-gradient-to-r from-teal-50 to-emerald-50 text-teal-700 px-3 py-1.5 rounded-lg font-semibold border border-teal-100">
-                                                        {expense.category}
-                                                    </span>
-                                                    <span className="text-red-600 font-bold text-sm sm:text-base">
-                                                        - {formatRupiah(expense.amount)}
-                                                    </span>
+                                                
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                                        <p className="text-xs text-gray-500 font-medium">
+                                                            {activity.date_formatted}
+                                                        </p>
+                                                    </div>
+                                                    
+                                                    <h4 className={`text-sm sm:text-base font-bold text-gray-800 mb-2 transition-colors leading-tight ${isIncome ? 'group-hover:text-emerald-700' : 'group-hover:text-red-700'}`}>
+                                                        {activity.title}
+                                                    </h4>
+                                                    
+                                                    <div className="flex justify-between items-center flex-wrap gap-2">
+                                                        <span className={`text-xs px-3 py-1.5 rounded-lg font-semibold border ${isIncome ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-100' : 'bg-gradient-to-r from-red-50 to-orange-50 text-red-700 border-red-100'}`}>
+                                                            {activity.category}
+                                                        </span>
+                                                        
+                                                        <span className={`font-bold text-sm sm:text-base ${isIncome ? 'text-emerald-600' : 'text-red-600'}`}>
+                                                            {isIncome ? '+ ' : '- '}
+                                                            {formatRupiah(activity.amount)}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-48 text-gray-400">
                                     <div className="bg-gray-100 p-4 rounded-full mb-3">
                                         <Clock size={32} className="opacity-30" />
                                     </div>
-                                    <p className="text-sm">Belum ada data pengeluaran</p>
+                                    <p className="text-sm">Belum ada aktivitas tercatat</p>
                                 </div>
                             )}
                         </div>
@@ -424,6 +419,7 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
                                 <a
                                     href="/laporan/bulanan?stream=true"
                                     target="_blank"
+                                    rel="noreferrer"
                                     className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-teal-50 hover:to-emerald-50 border border-gray-200 hover:border-teal-300 text-gray-700 hover:text-teal-700 rounded-xl transition-all text-xs font-bold shadow-sm hover:shadow-md"
                                 >
                                     <Eye size={14} /> Bulanan
@@ -431,11 +427,20 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
                                 <a
                                     href="/laporan/mingguan?stream=true"
                                     target="_blank"
+                                    rel="noreferrer"
                                     className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-teal-50 hover:to-emerald-50 border border-gray-200 hover:border-teal-300 text-gray-700 hover:text-teal-700 rounded-xl transition-all text-xs font-bold shadow-sm hover:shadow-md"
                                 >
                                     <Eye size={14} /> Jumat
                                 </a>
                             </div>
+                            
+                            {/* Tombol Buka Modal Filter Tanggal */}
+                            <button
+                                onClick={() => setIsReportModalOpen(true)}
+                                className="w-full mt-2 flex items-center justify-center gap-2 px-3 py-2.5 bg-emerald-600 hover:bg-emerald-700 border border-emerald-600 text-white rounded-xl transition-all text-xs font-bold shadow-md hover:shadow-lg"
+                            >
+                                <Filter size={14} /> Filter Laporan Berdasarkan Tanggal
+                            </button>
                         </div>
                     </div>
 
@@ -444,12 +449,9 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
 
             {/* Footer Islamic Style */}
             <footer className="relative bg-gradient-to-br from-emerald-900 via-teal-800 to-emerald-900 text-gray-300 py-12 overflow-hidden">
-                {/* Islamic Pattern Background */}
                 <div className="absolute inset-0 opacity-5" style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
                 }}></div>
-
-                {/* Top Border Decoration */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400"></div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -489,46 +491,36 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
                 </div>
             </footer>
 
-            {/* --- MODAL DONASI (DINAMIS DARI DATABASE) --- */}
+            {/* --- MODAL DONASI --- */}
             {isDonationModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-opacity animate-fade-in" onClick={() => setIsDonationModalOpen(false)}>
                     <div
                         className="bg-gradient-to-br from-white to-emerald-50/30 rounded-3xl shadow-2xl max-w-md w-full relative overflow-hidden animate-scale-in border-4 border-amber-400/20"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Decorative Header */}
                         <div className="relative bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 px-8 py-10 text-center overflow-hidden">
                             <div className="absolute inset-0 opacity-10" style={{
                                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")`
                             }}></div>
-
-                            <button
-                                onClick={() => setIsDonationModalOpen(false)}
-                                className="absolute top-4 right-4 text-white/80 hover:text-white transition bg-white/10 hover:bg-white/20 rounded-full p-2 backdrop-blur-sm"
-                            >
+                            <button onClick={() => setIsDonationModalOpen(false)} className="absolute top-4 right-4 text-white/80 hover:text-white transition bg-white/10 hover:bg-white/20 rounded-full p-2 backdrop-blur-sm">
                                 <X size={20} />
                             </button>
-
                             <div className="relative">
                                 <div className="bg-white/20 backdrop-blur-sm w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg border-2 border-white/30">
                                     <Wallet className="w-10 h-10 text-white" />
                                 </div>
                                 <h3 className="text-2xl font-bold text-white mb-2">Salurkan Donasi</h3>
-                                <p className="text-emerald-100 text-sm leading-relaxed px-4">
-                                    Infaq & sedekah Anda adalah amanah yang akan kami kelola dengan penuh tanggung jawab
-                                </p>
+                                <p className="text-emerald-100 text-sm leading-relaxed px-4">Infaq & sedekah Anda adalah amanah yang akan kami kelola dengan penuh tanggung jawab</p>
                             </div>
                         </div>
 
                         <div className="p-8">
-                            {/* Bismillah */}
                             <div className="text-center mb-6">
                                 <p className="text-emerald-700 font-arabic text-xl mb-2" style={{ fontFamily: 'serif' }}>بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
                                 <div className="w-16 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent mx-auto"></div>
                             </div>
 
                             <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                                {/* DYNAMIC REKENING LOOP */}
                                 {bankAccounts && bankAccounts.length > 0 ? (
                                     bankAccounts.map((bank) => (
                                         <div key={bank.id} className="group relative overflow-hidden p-5 border-2 border-emerald-200 hover:border-amber-400 rounded-2xl bg-gradient-to-br from-emerald-50 to-white hover:shadow-lg transition-all duration-300">
@@ -544,11 +536,7 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
                                                     <p className="text-2xl font-bold text-gray-800 font-mono mb-2 tracking-wide">{bank.account_number}</p>
                                                     <p className="text-sm text-gray-600 font-medium">a.n {bank.account_name}</p>
                                                 </div>
-                                                <button
-                                                    onClick={() => copyToClipboard(bank.account_number)}
-                                                    className="p-3 hover:bg-white rounded-xl transition-all text-emerald-600 hover:text-amber-600 hover:scale-110 shadow-sm hover:shadow-md"
-                                                    title="Salin Nomor Rekening"
-                                                >
+                                                <button onClick={() => copyToClipboard(bank.account_number)} className="p-3 hover:bg-white rounded-xl transition-all text-emerald-600 hover:text-amber-600 hover:scale-110 shadow-sm hover:shadow-md" title="Salin Nomor Rekening">
                                                     <Copy size={20} />
                                                 </button>
                                             </div>
@@ -561,27 +549,71 @@ export default function Home({ stats, renovationProgress, chartData, recentExpen
                                 )}
                             </div>
 
-                            {/* Konfirmasi WA */}
                             <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-2xl p-5 border-2 border-emerald-200">
-                                <p className="text-xs text-emerald-800 font-semibold mb-3 text-center">
-                                    📱 Konfirmasi Donasi via WhatsApp
-                                </p>
-                                <a
-                                    href="https://wa.me/6281225815155?text=Assalamu'alaikum,%20saya%20sudah%20transfer%20donasi%20sebesar..."
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="block w-full text-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                                >
+                                <p className="text-xs text-emerald-800 font-semibold mb-3 text-center">📱 Konfirmasi Donasi via WhatsApp</p>
+                                <a href="https://wa.me/6281225815155?text=Assalamu'alaikum,%20saya%20sudah%20transfer%20donasi%20sebesar..." target="_blank" rel="noreferrer" className="block w-full text-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                                     Hubungi Admin: +62 812-2581-5155
                                 </a>
                             </div>
 
-                            {/* Doa Penutup */}
                             <div className="mt-6 text-center">
-                                <p className="text-xs text-gray-500 italic leading-relaxed">
-                                    "Semoga Allah membalas kebaikan Anda dengan berlipat ganda"
-                                </p>
+                                <p className="text-xs text-gray-500 italic leading-relaxed">"Semoga Allah membalas kebaikan Anda dengan berlipat ganda"</p>
                                 <p className="text-amber-600 font-arabic text-sm mt-2" style={{ fontFamily: 'serif' }}>جَزَاكَ اللهُ خَيْرًا</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- MODAL FILTER LAPORAN --- */}
+            {isReportModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-opacity animate-fade-in" onClick={() => setIsReportModalOpen(false)}>
+                    <div
+                        className="bg-white rounded-3xl shadow-2xl max-w-md w-full relative overflow-hidden animate-scale-in border-t-8 border-emerald-500"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => setIsReportModalOpen(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition bg-gray-100 hover:bg-gray-200 rounded-full p-2"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <div className="p-8">
+                            <div className="text-center mb-6">
+                                <div className="bg-emerald-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600">
+                                    <Calendar size={32} />
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-800">Filter Laporan</h3>
+                                <p className="text-sm text-gray-500 mt-2">Pilih rentang tanggal untuk mencetak atau melihat laporan kustom.</p>
+                            </div>
+
+                            <div className="space-y-5">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Dari Tanggal (Mulai)</label>
+                                    <input 
+                                        type="date" 
+                                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-700"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Sampai Tanggal (Akhir)</label>
+                                    <input 
+                                        type="date" 
+                                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-700"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                    />
+                                </div>
+
+                                <button 
+                                    onClick={handleCustomReport}
+                                    className="w-full mt-4 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                                >
+                                    <FileText size={18} /> Tampilkan Laporan
+                                </button>
                             </div>
                         </div>
                     </div>

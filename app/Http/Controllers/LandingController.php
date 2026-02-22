@@ -16,10 +16,9 @@ class LandingController extends Controller
     public function __invoke()
     {
         // 1. Hitung Statistik Utama
-        // Pemasukan = (Pemasukan Manual) + (Donasi Online yang Sukses)
         $manualIncome = FundIncome::sum('amount');
         $onlineDonation = Donation::where('status', 'success')->sum('amount');
-
+        
         $totalIncome = $manualIncome + $onlineDonation;
         $totalExpense = FundExpense::sum('amount');
         $balance = $totalIncome - $totalExpense;
@@ -31,56 +30,91 @@ class LandingController extends Controller
 
         // 3. Siapkan Data Grafik (Bulanan Tahun Ini)
         $currentYear = date('Y');
-
-        // Pemasukan Manual per Bulan
-        $incomes = FundIncome::selectRaw('MONTH(transaction_date) as month, SUM(amount) as total')
+        
+        $incomesChart = FundIncome::selectRaw('MONTH(transaction_date) as month, SUM(amount) as total')
             ->whereYear('transaction_date', $currentYear)
             ->groupBy('month')
             ->pluck('total', 'month');
 
-        // Pemasukan Donatur per Bulan
-        $donations = Donation::selectRaw('MONTH(created_at) as month, SUM(amount) as total')
+        $donationsChart = Donation::selectRaw('MONTH(created_at) as month, SUM(amount) as total')
             ->whereYear('created_at', $currentYear)
             ->where('status', 'success')
             ->groupBy('month')
             ->pluck('total', 'month');
 
-        // Pengeluaran per Bulan
-        $expenses = FundExpense::selectRaw('MONTH(transaction_date) as month, SUM(amount) as total')
+        $expensesChart = FundExpense::selectRaw('MONTH(transaction_date) as month, SUM(amount) as total')
             ->whereYear('transaction_date', $currentYear)
             ->groupBy('month')
             ->pluck('total', 'month');
 
-        // Mapping Data Grafik untuk Recharts
-        $chartData = collect(range(1, 12))->map(function ($month) use ($incomes, $donations, $expenses) {
-            $totalMonthIncome = ($incomes->get($month) ?? 0) + ($donations->get($month) ?? 0);
-
+        $chartData = collect(range(1, 12))->map(function ($month) use ($incomesChart, $donationsChart, $expensesChart) {
+            $totalMonthIncome = ($incomesChart->get($month) ?? 0) + ($donationsChart->get($month) ?? 0);
             return [
-                'name' => Carbon::create()->month($month)->translatedFormat('M'), // Jan, Feb, dst
+                'name' => Carbon::create()->month($month)->translatedFormat('M'),
                 'pemasukan' => $totalMonthIncome,
-                'pengeluaran' => $expenses->get($month) ?? 0,
+                'pengeluaran' => $expensesChart->get($month) ?? 0,
             ];
         })->values();
 
-        // 4. Timeline Pengeluaran Terakhir (5 Data)
-        $recentExpenses = FundExpense::with('category')
+        // 4. Aktivitas Terkini (GABUNGAN: Pengeluaran, Pemasukan Manual, & Donasi Online)
+        $recentExpensesList = FundExpense::with('category')
             ->latest('transaction_date')
-            ->take(5)
+            ->take(6)
             ->get()
-            ->map(function ($expense) {
+            ->map(function ($item) {
                 return [
-                    'id' => $expense->id,
-                    'title' => $expense->title,
-                    'amount' => $expense->amount,
-                    'date' => $expense->transaction_date->translatedFormat('d F Y'),
-                    'category' => $expense->category->name ?? 'Umum',
+                    'id' => 'exp_' . $item->id,
+                    'title' => $item->title,
+                    'amount' => $item->amount,
+                    'date' => $item->transaction_date,
+                    'date_formatted' => Carbon::parse($item->transaction_date)->translatedFormat('d F Y'),
+                    'category' => $item->category->name ?? 'Umum',
+                    'type' => 'expense', // Penanda uang keluar
                 ];
             });
 
-        // 5. Data Rekening Bank (Untuk Modal Donasi)
+        $recentIncomesList = FundIncome::with('category')
+            ->latest('transaction_date')
+            ->take(6)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => 'inc_' . $item->id,
+                    'title' => $item->title,
+                    'amount' => $item->amount,
+                    'date' => $item->transaction_date,
+                    'date_formatted' => Carbon::parse($item->transaction_date)->translatedFormat('d F Y'),
+                    'category' => $item->category->name ?? 'Umum',
+                    'type' => 'income', // Penanda uang masuk
+                ];
+            });
+
+        $recentDonationsList = Donation::with('category')
+            ->where('status', 'success')
+            ->latest('created_at')
+            ->take(6)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => 'don_' . $item->id,
+                    'title' => 'Donasi: ' . $item->donor_name,
+                    'amount' => $item->amount,
+                    'date' => $item->created_at,
+                    'date_formatted' => Carbon::parse($item->created_at)->translatedFormat('d F Y'),
+                    'category' => $item->category->name ?? 'Umum',
+                    'type' => 'income',
+                ];
+            });
+        $recentActivities = $recentExpensesList
+            ->concat($recentIncomesList)
+            ->concat($recentDonationsList)
+            ->sortByDesc('date')
+            ->take(6)
+            ->values();
+
+        // 5. Data Rekening Bank
         $bankAccounts = BankAccount::where('is_active', true)->get();
 
-        // Kirim semua data ke React via Inertia
         return Inertia::render('Home', [
             'stats' => [
                 'totalIncome' => $totalIncome,
@@ -89,7 +123,7 @@ class LandingController extends Controller
             ],
             'renovationProgress' => $renovationProgress,
             'chartData' => $chartData,
-            'recentExpenses' => $recentExpenses,
+            'recentActivities' => $recentActivities, 
             'bankAccounts' => $bankAccounts,
         ]);
     }

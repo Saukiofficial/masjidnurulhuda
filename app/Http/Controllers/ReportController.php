@@ -51,12 +51,35 @@ class ReportController extends Controller
         return $pdf->download('laporan-bulanan-' . strtolower($startDate->format('F-Y')) . '.pdf');
     }
 
+    // METHOD BARU: Untuk Cetak Laporan Kustom (Filter Tanggal)
+    public function downloadCustom(Request $request)
+    {
+        // Validasi input tanggal dari request
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $startDate = Carbon::parse($request->start_date)->startOfDay();
+        $endDate = Carbon::parse($request->end_date)->endOfDay();
+
+        $data = $this->getReportData($startDate, $endDate);
+        $data['title'] = 'Laporan Keuangan Kustom';
+        $data['periode'] = $startDate->translatedFormat('d F Y') . ' s/d ' . $endDate->translatedFormat('d F Y');
+
+        $pdf = Pdf::loadView('reports.finance', $data);
+
+        // Fitur Stream
+        if ($request->has('stream')) {
+            return $pdf->stream('laporan-kustom-masjid.pdf');
+        }
+
+        return $pdf->download('laporan-kustom-masjid.pdf');
+    }
+
     private function getReportData($startDate, $endDate)
     {
-        // ... (Logika getReportData sama seperti sebelumnya, tidak perlu diubah) ...
-        // Agar lebih ringkas, saya persingkat, tapi pastikan isi method getReportData ini
-        // sama persis dengan yang ada di file Anda sebelumnya (STEP 10).
-
+        // Ambil data pemasukan manual
         $incomes = FundIncome::whereBetween('transaction_date', [$startDate, $endDate])
             ->get()
             ->map(fn($item) => [
@@ -66,6 +89,7 @@ class ReportController extends Controller
                 'type' => 'income'
             ]);
 
+        // Ambil data donasi online yang sukses
         $donations = Donation::where('status', 'success')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get()
@@ -76,8 +100,10 @@ class ReportController extends Controller
                 'type' => 'income'
             ]);
 
-        $allIncomes = $incomes->merge($donations)->sortBy('date');
+        // Gabungkan semua pemasukan dan urutkan berdasarkan tanggal
+        $allIncomes = $incomes->concat($donations)->sortBy('date');
 
+        // Ambil data pengeluaran
         $expenses = FundExpense::whereBetween('transaction_date', [$startDate, $endDate])
             ->get()
             ->map(fn($item) => [
@@ -88,7 +114,8 @@ class ReportController extends Controller
             ])
             ->sortBy('date');
 
-        $pastIncome = FundIncome::where('transaction_date', '<', $startDate)->sum('amount')
+        // Hitung Saldo Awal (Total Pemasukan sebelum Start Date - Total Pengeluaran sebelum Start Date)
+        $pastIncome = FundIncome::where('transaction_date', '<', $startDate)->sum('amount') 
                     + Donation::where('status', 'success')->where('created_at', '<', $startDate)->sum('amount');
         $pastExpense = FundExpense::where('transaction_date', '<', $startDate)->sum('amount');
         $saldoAwal = $pastIncome - $pastExpense;

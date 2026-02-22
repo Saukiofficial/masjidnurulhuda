@@ -4,14 +4,18 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
-// Route Utama (Landing Page) - Menampilkan Dashboard Transparansi
-Route::get('/', LandingController::class)->name('home');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
-// Route Download Laporan PDF (Mingguan & Bulanan)
+// Route Utama (Landing Page)
+Route::get('/', LandingController::class)->name('home');
 Route::get('/laporan/mingguan', [ReportController::class, 'downloadWeekly'])->name('report.weekly');
 Route::get('/laporan/bulanan', [ReportController::class, 'downloadMonthly'])->name('report.monthly');
+Route::get('/laporan/custom', [ReportController::class, 'downloadCustom'])->name('report.custom');
 
-// Redirect jika user mengakses /laporan secara langsung (opsional, untuk UX yang baik)
 Route::get('/laporan', function () {
     return redirect('/');
 });
