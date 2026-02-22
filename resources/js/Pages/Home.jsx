@@ -183,9 +183,8 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                                 <span className="bg-blue-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-blue-700">KAS</span>
                             </div>
                             <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Saldo</p>
-                            <h3 className="text-[10px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent leading-tight">
-                                <span className="hidden sm:inline">{formatRupiah(stats.balance)}</span>
-                                <span className="sm:hidden">{formatRupiahShort(stats.balance)}</span>
+                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
+                                {formatRupiah(stats.balance)}
                             </h3>
                             <div className="hidden sm:flex items-center gap-1.5 text-xs text-blue-600 font-medium mt-2">
                                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -209,9 +208,8 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                                 <span className="bg-emerald-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-emerald-700">MASUK</span>
                             </div>
                             <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Pemasukan</p>
-                            <h3 className="text-[10px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent leading-tight">
-                                <span className="hidden sm:inline">{formatRupiah(stats.totalIncome)}</span>
-                                <span className="sm:hidden">{formatRupiahShort(stats.totalIncome)}</span>
+                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
+                                {formatRupiah(stats.totalIncome)}
                             </h3>
                             <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-600 font-medium mt-2">
                                 <TrendingUp size={12} /><span>Berkah Berlimpah</span>
@@ -230,9 +228,8 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                                 <span className="bg-red-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-red-700">KELUAR</span>
                             </div>
                             <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Pengeluaran</p>
-                            <h3 className="text-[10px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent leading-tight">
-                                <span className="hidden sm:inline">{formatRupiah(stats.totalExpense)}</span>
-                                <span className="sm:hidden">{formatRupiahShort(stats.totalExpense)}</span>
+                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
+                                {formatRupiah(stats.totalExpense)}
                             </h3>
                             <div className="hidden sm:flex items-center gap-1.5 text-xs text-red-600 font-medium mt-2">
                                 <Activity size={12} /><span>Dikelola Transparan</span>
@@ -307,24 +304,14 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                             <div className="grid grid-cols-2 gap-2 sm:gap-4 text-center">
                                 <div className="bg-emerald-50 rounded-xl p-2 sm:p-4 border border-emerald-100">
                                     <p className="text-[8px] sm:text-xs text-emerald-600 font-semibold mb-0.5 sm:mb-1">Rata-rata Masuk/Bulan</p>
-                                    <p className="text-xs sm:text-xl font-bold text-emerald-700 leading-tight">
-                                        {chartData && chartData.length > 0 ? (
-                                            <>
-                                                <span className="hidden sm:inline">{formatRupiah(chartData.reduce((a, b) => a + (b.pemasukan || 0), 0) / chartData.length)}</span>
-                                                <span className="sm:hidden">{formatRupiahShort(chartData.reduce((a, b) => a + (b.pemasukan || 0), 0) / chartData.length)}</span>
-                                            </>
-                                        ) : 'Rp 0'}
+                                    <p className="text-[7px] sm:text-xl font-bold text-emerald-700 leading-tight break-all sm:break-normal">
+                                        {chartData && chartData.length > 0 ? formatRupiah(chartData.reduce((a, b) => a + (b.pemasukan || 0), 0) / chartData.length) : 'Rp 0'}
                                     </p>
                                 </div>
                                 <div className="bg-red-50 rounded-xl p-2 sm:p-4 border border-red-100">
                                     <p className="text-[8px] sm:text-xs text-red-600 font-semibold mb-0.5 sm:mb-1">Rata-rata Keluar/Bulan</p>
-                                    <p className="text-xs sm:text-xl font-bold text-red-700 leading-tight">
-                                        {chartData && chartData.length > 0 ? (
-                                            <>
-                                                <span className="hidden sm:inline">{formatRupiah(chartData.reduce((a, b) => a + (b.pengeluaran || 0), 0) / chartData.length)}</span>
-                                                <span className="sm:hidden">{formatRupiahShort(chartData.reduce((a, b) => a + (b.pengeluaran || 0), 0) / chartData.length)}</span>
-                                            </>
-                                        ) : 'Rp 0'}
+                                    <p className="text-[7px] sm:text-xl font-bold text-red-700 leading-tight break-all sm:break-normal">
+                                        {chartData && chartData.length > 0 ? formatRupiah(chartData.reduce((a, b) => a + (b.pengeluaran || 0), 0) / chartData.length) : 'Rp 0'}
                                     </p>
                                 </div>
                             </div>
@@ -395,10 +382,8 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                                                             {activity.title}
                                                         </h4>
                                                         <div className="flex items-center justify-between gap-1">
-                                                            <span className={`text-[9px] sm:text-sm font-extrabold ${isIncome ? 'text-emerald-600' : 'text-red-500'}`}>
-                                                                {isIncome ? '+' : '−'}{' '}
-                                                                <span className="hidden sm:inline">{formatRupiah(activity.amount)}</span>
-                                                                <span className="sm:hidden">{formatRupiahShort(activity.amount)}</span>
+                                                            <span className={`text-[8px] sm:text-sm font-extrabold break-all sm:break-normal ${isIncome ? 'text-emerald-600' : 'text-red-500'}`}>
+                                                                {isIncome ? '+' : '−'}{' '}{formatRupiah(activity.amount)}
                                                             </span>
                                                             {isIncome && (
                                                                 <span className="text-amber-500 text-[8px] sm:text-xs font-medium" style={{ fontFamily: 'serif' }}>
