@@ -432,6 +432,103 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                 </div>
             </div>
 
+            {/* ═══ LOKASI MASJID ═══ */}
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mb-8 sm:mb-14">
+                {/* Section Header */}
+                <div className="text-center mb-6 sm:mb-10">
+                    <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-1.5 mb-3">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest">Lokasi Kami</span>
+                    </div>
+                    <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-2">
+                        Temukan <span className="text-emerald-600">Masjid Nurul Huda</span>
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">Kami terbuka untuk seluruh jamaah. Datang, beribadah, dan bersama membangun masjid yang lebih baik.</p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 items-stretch">
+
+                    {/* Info Card — kiri */}
+                    <div className="lg:col-span-2 flex flex-col gap-3 sm:gap-4">
+
+                        {/* Alamat */}
+                        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-4 sm:p-6 flex-1">
+                            <div className="flex items-start gap-3 sm:gap-4">
+                                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-200">
+                                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[10px] sm:text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">Alamat Lengkap</p>
+                                    <h3 className="text-sm sm:text-base font-extrabold text-slate-800 mb-1">Masjid Nurul Huda</h3>
+                                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">XQ5M+RGC, Daleman, Poreh, Kec. Lenteng,<br className="hidden sm:inline"/> Kabupaten Sumenep, Jawa Timur 69461</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Jam Sholat */}
+                        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-4 sm:p-6">
+                            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-md shadow-amber-200">
+                                    <Clock className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-900" />
+                                </div>
+                                <p className="text-xs sm:text-sm font-extrabold text-slate-800">Waktu Sholat Berjamaah</p>
+                            </div>
+                            <div className="space-y-2 sm:space-y-2.5">
+                                {[
+                                    { name: 'Subuh', time: '04.30', color: 'bg-indigo-100 text-indigo-700' },
+                                    { name: 'Dzuhur', time: '12.00', color: 'bg-amber-100 text-amber-700' },
+                                    { name: 'Ashar', time: '15.15', color: 'bg-orange-100 text-orange-700' },
+                                    { name: 'Maghrib', time: '17.45', color: 'bg-rose-100 text-rose-700' },
+                                    { name: "Isya'", time: '19.00', color: 'bg-emerald-100 text-emerald-700' },
+                                ].map((sholat) => (
+                                    <div key={sholat.name} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full ${sholat.color}`}>{sholat.name}</span>
+                                        </div>
+                                        <span className="text-xs sm:text-sm font-bold text-slate-700 font-mono">{sholat.time} WIB</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-[9px] sm:text-[10px] text-slate-400 italic mt-3 text-center">*Waktu dapat berbeda, sesuaikan jadwal setempat</p>
+                        </div>
+
+                        {/* Tombol Google Maps */}
+                        <a
+                            href="https://maps.google.com/?q=-7.040240993042894,113.7839145327516"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group flex items-center justify-center gap-2 sm:gap-3 w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3 sm:py-4 px-4 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:shadow-emerald-200 text-xs sm:text-sm transform hover:-translate-y-0.5"
+                        >
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            Buka di Google Maps
+                            <svg className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                        </a>
+                    </div>
+
+                    {/* Peta — kanan */}
+                    <div className="lg:col-span-3 relative rounded-2xl overflow-hidden shadow-xl border-2 border-amber-200" style={{minHeight: '320px'}}>
+                        {/* Decorative corner ornament */}
+                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-500 z-10"></div>
+                        <div className="absolute top-2 left-2 z-10 bg-white/90 backdrop-blur-sm rounded-xl px-3 py-1.5 shadow-md border border-amber-200 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span className="text-[10px] sm:text-xs font-bold text-slate-700">Masjid Nurul Huda</span>
+                        </div>
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!3m2!1sid!2sid!4v1771774324154!5m2!1sid!2sid!6m8!1m7!1s8qDKDyXyEEfA9qi9z9rIKA!2m2!1d-7.040240993042894!2d113.7839145327516!3f205.00391180723352!4f-3.6468265286988526!5f0.7820865974627469"
+                            className="w-full h-full absolute inset-0"
+                            style={{ border: 0, minHeight: '320px' }}
+                            allowFullScreen=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Lokasi Masjid Nurul Huda"
+                        ></iframe>
+                        {/* Subtle vignette overlay */}
+                        <div className="absolute inset-0 pointer-events-none rounded-2xl" style={{boxShadow: 'inset 0 0 30px 4px rgba(0,0,0,0.07)'}}></div>
+                    </div>
+
+                </div>
+            </div>
+
             {/* ═══ FOOTER ═══ */}
             <footer className="relative bg-gradient-to-br from-emerald-900 via-teal-800 to-emerald-900 text-gray-300 py-8 sm:py-12 overflow-hidden">
                 <div className="absolute inset-0 opacity-5" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
