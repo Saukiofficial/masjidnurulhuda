@@ -182,7 +182,7 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                                 </div>
                                 <span className="bg-emerald-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-emerald-700">MASUK</span>
                             </div>
-                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">TOTAL PEMASUKAN</p>
+                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">PEMASUKAN</p>
                             <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
                                 {formatRupiah(stats.totalIncome)}
                             </h3>
@@ -202,7 +202,7 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                                 </div>
                                 <span className="bg-red-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-red-700">KELUAR</span>
                             </div>
-                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">TOTAL PENGELUARAN</p>
+                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">PENGELUARAN</p>
                             <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
                                 {formatRupiah(stats.totalExpense)}
                             </h3>
