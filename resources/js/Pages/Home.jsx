@@ -172,7 +172,47 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
             <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mt-4 sm:-mt-16 lg:-mt-28 relative z-20 mb-5 sm:mb-12">
                 <div className="grid grid-cols-3 gap-2 sm:gap-5 lg:gap-6">
 
-                    {/* Saldo */}
+                    {/* Pemasukan — KIRI */}
+                    <div className="group bg-gradient-to-br from-white to-emerald-50/50 p-3 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border-t-4 border-emerald-500 hover:-translate-y-1 sm:hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-14 sm:w-32 h-14 sm:h-32 bg-emerald-500/5 rounded-full -mr-7 sm:-mr-16 -mt-7 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div className="relative">
+                            <div className="flex items-start justify-between mb-2 sm:mb-4">
+                                <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg sm:rounded-2xl text-white shadow-md">
+                                    <TrendingUp size={14} className="sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
+                                </div>
+                                <span className="bg-emerald-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-emerald-700">MASUK</span>
+                            </div>
+                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">TOTAL PEMASUKAN</p>
+                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
+                                {formatRupiah(stats.totalIncome)}
+                            </h3>
+                            <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-600 font-medium mt-2">
+                                <TrendingUp size={12} /><span>Berkah Berlimpah</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Pengeluaran — TENGAH */}
+                    <div className="group bg-gradient-to-br from-white to-red-50/50 p-3 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border-t-4 border-red-500 hover:-translate-y-1 sm:hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-14 sm:w-32 h-14 sm:h-32 bg-red-500/5 rounded-full -mr-7 sm:-mr-16 -mt-7 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div className="relative">
+                            <div className="flex items-start justify-between mb-2 sm:mb-4">
+                                <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-lg sm:rounded-2xl text-white shadow-md">
+                                    <TrendingDown size={14} className="sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
+                                </div>
+                                <span className="bg-red-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-red-700">KELUAR</span>
+                            </div>
+                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">TOTAL PENGELUARAN</p>
+                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
+                                {formatRupiah(stats.totalExpense)}
+                            </h3>
+                            <div className="hidden sm:flex items-center gap-1.5 text-xs text-red-600 font-medium mt-2">
+                                <Activity size={12} /><span>Dikelola Transparan</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Saldo — KANAN */}
                     <div className="group bg-gradient-to-br from-white to-blue-50/50 p-3 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border-t-4 border-blue-500 hover:-translate-y-1 sm:hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-14 sm:w-32 h-14 sm:h-32 bg-blue-500/5 rounded-full -mr-7 sm:-mr-16 -mt-7 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
                         <div className="relative">
@@ -182,7 +222,7 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                                 </div>
                                 <span className="bg-blue-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-blue-700">KAS</span>
                             </div>
-                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Saldo</p>
+                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">SiSA SALDO</p>
                             <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
                                 {formatRupiah(stats.balance)}
                             </h3>
@@ -193,46 +233,6 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                             <div className="sm:hidden flex items-center gap-1 text-[8px] text-blue-500 font-medium mt-1">
                                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
                                 <span>Live</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Pemasukan */}
-                    <div className="group bg-gradient-to-br from-white to-emerald-50/50 p-3 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border-t-4 border-emerald-500 hover:-translate-y-1 sm:hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-14 sm:w-32 h-14 sm:h-32 bg-emerald-500/5 rounded-full -mr-7 sm:-mr-16 -mt-7 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-                        <div className="relative">
-                            <div className="flex items-start justify-between mb-2 sm:mb-4">
-                                <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg sm:rounded-2xl text-white shadow-md">
-                                    <TrendingUp size={14} className="sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
-                                </div>
-                                <span className="bg-emerald-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-emerald-700">MASUK</span>
-                            </div>
-                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Pemasukan</p>
-                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
-                                {formatRupiah(stats.totalIncome)}
-                            </h3>
-                            <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-600 font-medium mt-2">
-                                <TrendingUp size={12} /><span>Berkah Berlimpah</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Pengeluaran */}
-                    <div className="group bg-gradient-to-br from-white to-red-50/50 p-3 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border-t-4 border-red-500 hover:-translate-y-1 sm:hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-14 sm:w-32 h-14 sm:h-32 bg-red-500/5 rounded-full -mr-7 sm:-mr-16 -mt-7 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-                        <div className="relative">
-                            <div className="flex items-start justify-between mb-2 sm:mb-4">
-                                <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-lg sm:rounded-2xl text-white shadow-md">
-                                    <TrendingDown size={14} className="sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
-                                </div>
-                                <span className="bg-red-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-red-700">KELUAR</span>
-                            </div>
-                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Pengeluaran</p>
-                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
-                                {formatRupiah(stats.totalExpense)}
-                            </h3>
-                            <div className="hidden sm:flex items-center gap-1.5 text-xs text-red-600 font-medium mt-2">
-                                <Activity size={12} /><span>Dikelola Transparan</span>
                             </div>
                         </div>
                     </div>
@@ -555,7 +555,7 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                     <div className="border-t border-white/10 pt-4 sm:pt-6">
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                             <p className="text-emerald-200 text-center text-[10px] sm:text-sm">
-                                &copy; {new Date().getFullYear()} <span className="font-semibold text-white">Masjid Nurul Huda</span>. Developer by Sauki Annaim
+                                &copy; {new Date().getFullYear()} <span className="font-semibold text-white">Masjid Nurul Huda</span>. Developer by Kyysolutions
                             </p>
                             <div className="flex gap-4 sm:gap-6 text-emerald-200 text-xs">
                                 <a href="#" className="hover:text-amber-300 transition">Tentang</a>
