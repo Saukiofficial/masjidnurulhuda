@@ -13,12 +13,12 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        // Cek apakah user admin sudah ada untuk menghindari error duplikat
+        
         if (! User::where('email', 'admin@masjid.com')->exists()) {
             User::create([
                 'name' => 'Takmir Masjid',
                 'email' => 'admin@masjid.com',
-                'password' => Hash::make('password'), // Password default: password
+                'password' => Hash::make('password'), 
                 'email_verified_at' => now(),
             ]);
         }

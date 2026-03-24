@@ -3,14 +3,17 @@ import { Head } from '@inertiajs/react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { Wallet, TrendingUp, TrendingDown, Clock, Activity, Building2, X, Copy, FileText, Eye, Calendar, Filter } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Clock, Activity, Building2, X, Copy, FileText, Eye, Calendar, Filter, ListFilter } from 'lucide-react';
 
 export default function Home({ stats, renovationProgress, chartData, recentActivities, bankAccounts }) {
 
     const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    
+    // States untuk filter tanggal dan tipe laporan
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [reportType, setReportType] = useState('semua'); // Default: Semua
 
     const formatRupiah = (number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -40,7 +43,8 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
             alert('Tanggal Mulai tidak boleh lebih besar dari Tanggal Akhir.');
             return;
         }
-        window.open(`/laporan/custom?start_date=${startDate}&end_date=${endDate}&stream=true`, '_blank');
+        // Kirim request custom report beserta type-nya
+        window.open(`/laporan/custom?start_date=${startDate}&end_date=${endDate}&type=${reportType}&stream=true`, '_blank');
         setIsReportModalOpen(false);
     };
 
@@ -424,7 +428,7 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                                 </a>
                             </div>
                             <button onClick={() => setIsReportModalOpen(true)} className="w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg sm:rounded-xl transition-all text-[8px] sm:text-xs font-bold shadow-md hover:shadow-lg">
-                                <Filter size={10} className="sm:w-3.5 sm:h-3.5" /> Filter Laporan Berdasarkan Tanggal
+                                <Filter size={10} className="sm:w-3.5 sm:h-3.5" /> Filter & Cetak Laporan
                             </button>
                         </div>
                     </div>
@@ -645,12 +649,26 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                         <div className="p-5 sm:p-8">
                             <div className="text-center mb-4 sm:mb-6">
                                 <div className="bg-emerald-100 w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 text-emerald-600">
-                                    <Calendar size={22} className="sm:w-8 sm:h-8" />
+                                    <ListFilter size={22} className="sm:w-8 sm:h-8" />
                                 </div>
-                                <h3 className="text-lg sm:text-2xl font-bold text-gray-800">Filter Laporan</h3>
-                                <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">Pilih rentang tanggal untuk mencetak atau melihat laporan kustom.</p>
+                                <h3 className="text-lg sm:text-2xl font-bold text-gray-800">Filter Cetak Laporan</h3>
+                                <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">Pilih kategori dan rentang tanggal untuk mencetak laporan spesifik.</p>
                             </div>
                             <div className="space-y-4 sm:space-y-5">
+                                {/* Pilihan Kategori / Tipe Laporan */}
+                                <div>
+                                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Kategori Laporan</label>
+                                    <select 
+                                        className="w-full border-2 border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-700 bg-white text-sm"
+                                        value={reportType}
+                                        onChange={(e) => setReportType(e.target.value)}
+                                    >
+                                        <option value="semua">Semua Transaksi (Buku Kas)</option>
+                                        <option value="pemasukan">Khusus Pemasukan Kas (Manual)</option>
+                                        <option value="donatur">Khusus Penerimaan Donasi</option>
+                                        <option value="pengeluaran">Khusus Pengeluaran</option>
+                                    </select>
+                                </div>
                                 <div>
                                     <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Dari Tanggal (Mulai)</label>
                                     <input type="date" className="w-full border-2 border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-700 text-sm" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
