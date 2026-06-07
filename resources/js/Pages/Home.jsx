@@ -22,13 +22,26 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
         }).format(number);
     };
 
-    const formatRupiahShort = (number) => {
-        if (number >= 1000000000) return `Rp ${(number / 1000000000).toFixed(1)}M`;
-        if (number >= 1000000) return `Rp ${(number / 1000000).toFixed(1)}jt`;
-        if (number >= 1000) return `Rp ${(number / 1000).toFixed(0)}rb`;
-        return `Rp ${number}`;
+    const toNumber = (value) => {
+        const number = Number(value ?? 0);
+        return Number.isFinite(number) ? number : 0;
     };
 
+    const formatRupiahShort = (number) => {
+        const value = toNumber(number);
+        if (value >= 1000000000) return `Rp ${(value / 1000000000).toFixed(1)}M`;
+        if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(1)}jt`;
+        if (value >= 1000) return `Rp ${(value / 1000).toFixed(0)}rb`;
+        return `Rp ${value}`;
+    };
+
+    const averageMonthlyIncome = chartData && chartData.length > 0
+        ? chartData.reduce((total, item) => total + toNumber(item.pemasukan), 0) / chartData.length
+        : 0;
+
+    const averageMonthlyExpense = chartData && chartData.length > 0
+        ? chartData.reduce((total, item) => total + toNumber(item.pengeluaran), 0) / chartData.length
+        : 0;
 
     const formatQuantity = (number) => {
         const value = Number(number || 0);
@@ -315,16 +328,21 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
 
                         <div className="mt-3 sm:mt-6 pt-3 sm:pt-6 border-t border-gray-100">
                             <div className="grid grid-cols-2 gap-2 sm:gap-4 text-center">
-                                <div className="bg-emerald-50 rounded-xl p-2 sm:p-4 border border-emerald-100">
-                                    <p className="text-[8px] sm:text-xs text-emerald-600 font-semibold mb-0.5 sm:mb-1">Rata-rata Masuk/Bulan</p>
-                                    <p className="text-[7px] sm:text-xl font-bold text-emerald-700 leading-tight break-all sm:break-normal">
-                                        {chartData && chartData.length > 0 ? formatRupiah(chartData.reduce((a, b) => a + (b.pemasukan || 0), 0) / chartData.length) : 'Rp 0'}
+                                <div className="bg-emerald-50 rounded-xl p-3 sm:p-4 border border-emerald-100">
+                                    <p className="text-[10px] sm:text-xs text-emerald-600 font-semibold mb-1">
+                                        Rata-rata Masuk/Bulan
+                                    </p>
+                                    <p className="text-xs sm:text-xl font-bold text-emerald-700 leading-tight break-words">
+                                        {formatRupiah(averageMonthlyIncome)}
                                     </p>
                                 </div>
-                                <div className="bg-red-50 rounded-xl p-2 sm:p-4 border border-red-100">
-                                    <p className="text-[8px] sm:text-xs text-red-600 font-semibold mb-0.5 sm:mb-1">Rata-rata Keluar/Bulan</p>
-                                    <p className="text-[7px] sm:text-xl font-bold text-red-700 leading-tight break-all sm:break-normal">
-                                        {chartData && chartData.length > 0 ? formatRupiah(chartData.reduce((a, b) => a + (b.pengeluaran || 0), 0) / chartData.length) : 'Rp 0'}
+
+                                <div className="bg-red-50 rounded-xl p-3 sm:p-4 border border-red-100">
+                                    <p className="text-[10px] sm:text-xs text-red-600 font-semibold mb-1">
+                                        Rata-rata Keluar/Bulan
+                                    </p>
+                                    <p className="text-xs sm:text-xl font-bold text-red-700 leading-tight break-words">
+                                        {formatRupiah(averageMonthlyExpense)}
                                     </p>
                                 </div>
                             </div>

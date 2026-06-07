@@ -157,15 +157,16 @@ class LandingController extends Controller
             ->pluck('total', 'month');
 
         $chartData = collect(range(1, 12))->map(function ($month) use ($incomesChart, $donationsChart, $expensesChart) {
-            $totalMonthIncome = ($incomesChart->get($month) ?? 0) + ($donationsChart->get($month) ?? 0);
+    $income = (float) ($incomesChart->get($month) ?? 0);
+    $donation = (float) ($donationsChart->get($month) ?? 0);
+    $expense = (float) ($expensesChart->get($month) ?? 0);
 
-            return [
-                'name' => Carbon::create()->month($month)->translatedFormat('M'),
-                'pemasukan' => $totalMonthIncome,
-                'pengeluaran' => $expensesChart->get($month) ?? 0,
-            ];
-        })->values();
-
+    return [
+        'name' => Carbon::create()->month($month)->translatedFormat('M'),
+        'pemasukan' => $income + $donation,
+        'pengeluaran' => $expense,
+    ];
+})->values();
         /*
         |--------------------------------------------------------------------------
         | 7. Aktivitas Terkini Keuangan
