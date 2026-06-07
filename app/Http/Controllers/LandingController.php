@@ -6,31 +6,140 @@ use App\Models\BankAccount;
 use App\Models\Donation;
 use App\Models\FundExpense;
 use App\Models\FundIncome;
+use App\Models\PhysicalDonation;
 use App\Models\RenovationProgress;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Carbon;
+use Inertia\Inertia;
 
 class LandingController extends Controller
 {
     public function __invoke()
     {
-        // 1. Hitung Statistik Utama
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Hitung Statistik Keuangan Utama
+        |--------------------------------------------------------------------------
+        | Catatan:
+        | - FundIncome = pemasukan manual dari admin
+        | - Donation = donasi uang online/manual yang statusnya success
+        | - FundExpense = pengeluaran dana
+        | - Donasi fisik TIDAK masuk saldo kas
+        */
+
         $manualIncome = FundIncome::sum('amount');
-        $onlineDonation = Donation::where('status', 'success')->sum('amount');
-        
+
+        $onlineDonation = Donation::where('status', 'success')
+            ->sum('amount');
+
         $totalIncome = $manualIncome + $onlineDonation;
+
         $totalExpense = FundExpense::sum('amount');
+
         $balance = $totalIncome - $totalExpense;
 
-        // 2. Ambil Progres Renovasi Terakhir
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Statistik Donasi Fisik
+        |--------------------------------------------------------------------------
+        | Donasi fisik hanya untuk monitoring barang/material.
+        | Tidak dimasukkan ke saldo kas agar laporan keuangan tetap aman.
+        */
+
+        $physicalDonationStats = [
+            'totalItems' => PhysicalDonation::whereIn('status', ['received', 'used'])
+                ->count(),
+
+            'totalEstimatedValue' => PhysicalDonation::whereIn('status', ['received', 'used'])
+                ->sum('estimated_value'),
+
+            'totalPending' => PhysicalDonation::where('status', 'pending')
+                ->count(),
+
+            'totalUsed' => PhysicalDonation::where('status', 'used')
+                ->count(),
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Rekap Donasi Fisik Berdasarkan Barang
+        |--------------------------------------------------------------------------
+        | Contoh hasil:
+        | - Semen: 50 Sak
+        | - Pasir: 2 Truk
+        | - Batu: 3 Truk
+        */
+
+        $physicalDonationSummary = PhysicalDonation::query()
+            ->where('is_public', true)
+            ->whereIn('status', ['received', 'used'])
+            ->selectRaw('
+                item_name,
+                unit,
+                SUM(quantity) as total_quantity,
+                SUM(estimated_value) as total_estimated_value
+            ')
+            ->groupBy('item_name', 'unit')
+            ->orderBy('item_name')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'item_name' => $item->item_name,
+                    'unit' => $item->unit,
+                    'total_quantity' => (float) $item->total_quantity,
+                    'total_estimated_value' => (float) $item->total_estimated_value,
+                ];
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Donasi Fisik Terbaru
+        |--------------------------------------------------------------------------
+        | Untuk ditampilkan di frontend sebagai daftar bantuan fisik terbaru.
+        */
+
+        $recentPhysicalDonations = PhysicalDonation::with('category')
+            ->where('is_public', true)
+            ->latest('received_date')
+            ->latest('created_at')
+            ->take(6)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'donor_name' => $item->donor_name,
+                    'item_name' => $item->item_name,
+                    'quantity' => (float) $item->quantity,
+                    'unit' => $item->unit,
+                    'estimated_value' => (float) $item->estimated_value,
+                    'received_date' => $item->received_date,
+                    'date_formatted' => $item->received_date
+                        ? Carbon::parse($item->received_date)->translatedFormat('d F Y')
+                        : Carbon::parse($item->created_at)->translatedFormat('d F Y'),
+                    'category' => $item->category->name ?? 'Umum',
+                    'status' => $item->status,
+                    'description' => $item->description,
+                    'photo' => $item->photo,
+                ];
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Ambil Progres Renovasi Terakhir
+        |--------------------------------------------------------------------------
+        */
+
         $renovationProgress = RenovationProgress::where('is_published', true)
             ->latest('date')
             ->first();
 
-        // 3. Siapkan Data Grafik (Bulanan Tahun Ini)
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Data Grafik Keuangan Bulanan Tahun Ini
+        |--------------------------------------------------------------------------
+        */
+
         $currentYear = date('Y');
-        
+
         $incomesChart = FundIncome::selectRaw('MONTH(transaction_date) as month, SUM(amount) as total')
             ->whereYear('transaction_date', $currentYear)
             ->groupBy('month')
@@ -49,6 +158,7 @@ class LandingController extends Controller
 
         $chartData = collect(range(1, 12))->map(function ($month) use ($incomesChart, $donationsChart, $expensesChart) {
             $totalMonthIncome = ($incomesChart->get($month) ?? 0) + ($donationsChart->get($month) ?? 0);
+
             return [
                 'name' => Carbon::create()->month($month)->translatedFormat('M'),
                 'pemasukan' => $totalMonthIncome,
@@ -56,7 +166,16 @@ class LandingController extends Controller
             ];
         })->values();
 
-        // 4. Aktivitas Terkini (GABUNGAN: Pengeluaran, Pemasukan Manual, & Donasi Online)
+        /*
+        |--------------------------------------------------------------------------
+        | 7. Aktivitas Terkini Keuangan
+        |--------------------------------------------------------------------------
+        | Gabungan:
+        | - Pengeluaran
+        | - Pemasukan manual
+        | - Donasi uang
+        */
+
         $recentExpensesList = FundExpense::with('category')
             ->latest('transaction_date')
             ->take(6)
@@ -69,7 +188,7 @@ class LandingController extends Controller
                     'date' => $item->transaction_date,
                     'date_formatted' => Carbon::parse($item->transaction_date)->translatedFormat('d F Y'),
                     'category' => $item->category->name ?? 'Umum',
-                    'type' => 'expense', // Penanda uang keluar
+                    'type' => 'expense',
                 ];
             });
 
@@ -85,7 +204,7 @@ class LandingController extends Controller
                     'date' => $item->transaction_date,
                     'date_formatted' => Carbon::parse($item->transaction_date)->translatedFormat('d F Y'),
                     'category' => $item->category->name ?? 'Umum',
-                    'type' => 'income', // Penanda uang masuk
+                    'type' => 'income',
                 ];
             });
 
@@ -105,6 +224,7 @@ class LandingController extends Controller
                     'type' => 'income',
                 ];
             });
+
         $recentActivities = $recentExpensesList
             ->concat($recentIncomesList)
             ->concat($recentDonationsList)
@@ -112,8 +232,20 @@ class LandingController extends Controller
             ->take(6)
             ->values();
 
-        // 5. Data Rekening Bank
-        $bankAccounts = BankAccount::where('is_active', true)->get();
+        /*
+        |--------------------------------------------------------------------------
+        | 8. Data Rekening Bank
+        |--------------------------------------------------------------------------
+        */
+
+        $bankAccounts = BankAccount::where('is_active', true)
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | 9. Kirim Data ke Frontend Inertia React
+        |--------------------------------------------------------------------------
+        */
 
         return Inertia::render('Home', [
             'stats' => [
@@ -121,9 +253,14 @@ class LandingController extends Controller
                 'totalExpense' => $totalExpense,
                 'balance' => $balance,
             ],
+
+            'physicalDonationStats' => $physicalDonationStats,
+            'physicalDonationSummary' => $physicalDonationSummary,
+            'recentPhysicalDonations' => $recentPhysicalDonations,
+
             'renovationProgress' => $renovationProgress,
             'chartData' => $chartData,
-            'recentActivities' => $recentActivities, 
+            'recentActivities' => $recentActivities,
             'bankAccounts' => $bankAccounts,
         ]);
     }
