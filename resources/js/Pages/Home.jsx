@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { Wallet, TrendingUp, TrendingDown, Clock, Activity, Building2, X, Copy, FileText, Eye, Calendar, Filter, ListFilter } from 'lucide-react';
 
-export default function Home({ stats, renovationProgress, chartData, recentActivities, bankAccounts }) {
+export default function Home({ stats, renovationProgress, chartData, recentActivities, bankAccounts, physicalDonationStats = {}, physicalDonationSummary = [], recentPhysicalDonations = [] }) {
 
     const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -27,6 +27,15 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
         if (number >= 1000000) return `Rp ${(number / 1000000).toFixed(1)}jt`;
         if (number >= 1000) return `Rp ${(number / 1000).toFixed(0)}rb`;
         return `Rp ${number}`;
+    };
+
+
+    const formatQuantity = (number) => {
+        const value = Number(number || 0);
+        return new Intl.NumberFormat('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: value % 1 === 0 ? 0 : 2,
+        }).format(value);
     };
 
     const copyToClipboard = (text) => {
@@ -433,6 +442,194 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                         </div>
                     </div>
 
+                </div>
+            </div>
+
+
+            {/* ═══ DONASI FISIK ═══ */}
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mb-8 sm:mb-14">
+                <div className="text-center mb-6 sm:mb-10">
+                    <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-1.5 mb-3">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span className="text-xs font-bold text-amber-700 uppercase tracking-widest">Donasi Fisik Renovasi</span>
+                    </div>
+                    <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-2">
+                        Bantuan <span className="text-emerald-600">Material & Barang</span>
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-500 max-w-2xl mx-auto">
+                        Transparansi bantuan fisik seperti semen, pasir, batu, besi, tanah, dan kebutuhan renovasi lainnya.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-5 mb-5 sm:mb-8">
+                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-100 p-3 sm:p-5">
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+                            </div>
+                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase">Barang Diterima</span>
+                        </div>
+                        <p className="text-lg sm:text-3xl font-extrabold text-emerald-700">
+                            {physicalDonationStats?.totalItems || 0}
+                        </p>
+                    </div>
+
+                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-100 p-3 sm:p-5">
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-amber-100 flex items-center justify-center">
+                                <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                            </div>
+                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase">Estimasi Nilai</span>
+                        </div>
+                        <p className="text-[11px] sm:text-2xl font-extrabold text-amber-700 leading-tight break-all">
+                            {formatRupiah(physicalDonationStats?.totalEstimatedValue || 0)}
+                        </p>
+                    </div>
+
+                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-100 p-3 sm:p-5">
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-blue-100 flex items-center justify-center">
+                                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                            </div>
+                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase">Menunggu</span>
+                        </div>
+                        <p className="text-lg sm:text-3xl font-extrabold text-blue-700">
+                            {physicalDonationStats?.totalPending || 0}
+                        </p>
+                    </div>
+
+                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-100 p-3 sm:p-5">
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-teal-100 flex items-center justify-center">
+                                <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600" />
+                            </div>
+                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase">Digunakan</span>
+                        </div>
+                        <p className="text-lg sm:text-3xl font-extrabold text-teal-700">
+                            {physicalDonationStats?.totalUsed || 0}
+                        </p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                    <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+                        <div className="h-1.5 bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-500"></div>
+                        <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between gap-3">
+                            <div>
+                                <h3 className="text-base sm:text-xl font-extrabold text-slate-800">Rekap Material Terkumpul</h3>
+                                <p className="text-[10px] sm:text-sm text-slate-500 mt-1">Jumlah bantuan fisik berdasarkan jenis barang dan satuan.</p>
+                            </div>
+                            <div className="hidden sm:flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span className="text-xs font-bold text-emerald-700">TERUPDATE</span>
+                            </div>
+                        </div>
+
+                        <div className="p-4 sm:p-6">
+                            {physicalDonationSummary && physicalDonationSummary.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                    {physicalDonationSummary.map((item, index) => (
+                                        <div key={`${item.item_name}-${item.unit}-${index}`} className="group rounded-xl border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-4 hover:border-emerald-200 hover:shadow-md transition-all">
+                                            <div className="flex items-start justify-between gap-3 mb-3">
+                                                <div>
+                                                    <h4 className="text-sm sm:text-base font-extrabold text-slate-800 group-hover:text-emerald-700 transition">
+                                                        {item.item_name}
+                                                    </h4>
+                                                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Satuan: {item.unit}</p>
+                                                </div>
+                                                <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-amber-700 font-black text-sm">✦</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-end justify-between gap-2">
+                                                <div>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Total</p>
+                                                    <p className="text-xl sm:text-2xl font-black text-emerald-700">
+                                                        {formatQuantity(item.total_quantity)} <span className="text-xs sm:text-sm text-slate-500 font-bold">{item.unit}</span>
+                                                    </p>
+                                                </div>
+                                                <p className="text-[10px] sm:text-xs text-amber-700 font-bold bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
+                                                    {formatRupiah(item.total_estimated_value || 0)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+                                    <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                                        <FileText className="w-7 h-7 opacity-40" />
+                                    </div>
+                                    <p className="text-sm font-bold text-slate-500">Belum ada data donasi fisik</p>
+                                    <p className="text-xs mt-1 text-center">Data akan muncul setelah admin menambahkan donasi fisik dan mengaktifkan tampil di frontend.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+                        <div className="h-1.5 bg-gradient-to-r from-emerald-400 to-amber-400"></div>
+                        <div className="p-4 sm:p-6 border-b border-slate-100">
+                            <h3 className="text-base sm:text-xl font-extrabold text-slate-800">Donasi Fisik Terbaru</h3>
+                            <p className="text-[10px] sm:text-sm text-slate-500 mt-1">Bantuan material yang dicatat panitia.</p>
+                        </div>
+
+                        <div className="max-h-[460px] overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                            {recentPhysicalDonations && recentPhysicalDonations.length > 0 ? (
+                                recentPhysicalDonations.map((donation) => (
+                                    <div key={donation.id} className="rounded-xl border border-slate-100 bg-gradient-to-br from-white to-emerald-50/40 p-3 hover:shadow-md transition-all">
+                                        <div className="flex items-start gap-3">
+                                            {donation.photo ? (
+                                                <img
+                                                    src={`/storage/${donation.photo}`}
+                                                    alt={donation.item_name}
+                                                    className="w-12 h-12 rounded-xl object-cover border border-slate-100 flex-shrink-0"
+                                                />
+                                            ) : (
+                                                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                                    <FileText className="w-5 h-5 text-amber-700" />
+                                                </div>
+                                            )}
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-start justify-between gap-2 mb-1">
+                                                    <h4 className="font-extrabold text-slate-800 text-sm leading-tight truncate">
+                                                        {donation.item_name}
+                                                    </h4>
+                                                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-full whitespace-nowrap ${donation.status === 'used' ? 'bg-blue-100 text-blue-700' : donation.status === 'received' ? 'bg-emerald-100 text-emerald-700' : donation.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                                                        {donation.status === 'used' ? 'DIGUNAKAN' : donation.status === 'received' ? 'DITERIMA' : donation.status === 'pending' ? 'MENUNGGU' : 'DITOLAK'}
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs font-bold text-emerald-700">
+                                                    {formatQuantity(donation.quantity)} {donation.unit}
+                                                </p>
+                                                <p className="text-[10px] text-slate-500 mt-1">
+                                                    Donatur: <span className="font-semibold text-slate-700">{donation.donor_name}</span>
+                                                </p>
+                                                <div className="flex items-center justify-between gap-2 mt-2">
+                                                    <span className="text-[9px] text-slate-400 flex items-center gap-1">
+                                                        <Clock size={9} /> {donation.date_formatted}
+                                                    </span>
+                                                    {donation.estimated_value > 0 && (
+                                                        <span className="text-[9px] font-bold text-amber-700">
+                                                            {formatRupiah(donation.estimated_value)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+                                    <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
+                                        <Clock className="w-7 h-7 text-emerald-400" />
+                                    </div>
+                                    <p className="text-sm font-bold text-slate-500">Belum ada donasi terbaru</p>
+                                    <p className="text-xs mt-1 text-center">Input data dari admin Filament terlebih dahulu.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
 

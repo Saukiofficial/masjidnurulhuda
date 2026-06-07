@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FundCategory extends Model
 {
-    protected $guarded = []; // Izinkan semua kolom diisi
+    protected $guarded = [];
 
     public function incomes(): HasMany
     {
@@ -17,5 +17,15 @@ class FundCategory extends Model
     public function expenses(): HasMany
     {
         return $this->hasMany(FundExpense::class);
+    }
+
+    public function donations(): HasMany
+    {
+        return $this->hasMany(Donation::class);
+    }
+
+    public function physicalDonations(): HasMany
+    {
+        return $this->hasMany(PhysicalDonation::class);
     }
 }
