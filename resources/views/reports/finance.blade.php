@@ -77,7 +77,8 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th width="15%">Tanggal</th>
+                <th width="10%">Tanggal</th>
+                <th width="10%">Bukti</th>
                 <th>Keterangan / Keperluan</th>
                 <th width="20%">Jumlah (Rp)</th>
             </tr>
@@ -86,14 +87,21 @@
             @forelse($expenses as $expense)
             <tr>
                 <td>{{ \Carbon\Carbon::parse($expense['date'])->format('d/m/Y') }}</td>
+                <td class="text-center">
+                    @if(!empty($expense['proof']))
+                        <img src="{{ $expense['proof'] }}" style="width:40px; height:40px; object-fit:cover; border:1px solid #ccc;">
+                    @else
+                        -
+                    @endif
+                </td>
                 <td>{{ $expense['description'] }}</td>
                 <td class="text-right">{{ number_format($expense['amount'], 0, ',', '.') }}</td>
             </tr>
             @empty
-            <tr><td colspan="3" class="text-center">Tidak ada pengeluaran pada periode ini.</td></tr>
+            <tr><td colspan="4" class="text-center">Tidak ada pengeluaran pada periode ini.</td></tr>
             @endforelse
             <tr style="background-color: #f9f9f9; font-weight: bold;">
-                <td colspan="2" class="text-right">Total Pengeluaran</td>
+                <td colspan="3" class="text-right">Total Pengeluaran</td>
                 <td class="text-right">{{ number_format($total_expense, 0, ',', '.') }}</td>
             </tr>
         </tbody>
@@ -120,6 +128,27 @@
         </table>
     </div>
     <div class="clear"></div>
+
+    @if(!empty($proofs) && count($proofs) > 0)
+    <div style="page-break-before: always;"></div>
+    <h3>Lampiran Bukti Nota / Kwitansi Pengeluaran</h3>
+    <table width="100%">
+        <tr>
+            @foreach($proofs as $i => $proof)
+            <td width="33%" style="vertical-align: top; padding: 6px; text-align: center;">
+                <img src="{{ $proof['image'] }}" style="max-width: 100%; max-height: 220px; border: 1px solid #999;">
+                <div style="font-size: 10px; margin-top: 4px;">
+                    {{ \Carbon\Carbon::parse($proof['date'])->format('d/m/Y') }} - {{ $proof['description'] }}<br>
+                    <span class="font-bold">Rp {{ number_format($proof['amount'], 0, ',', '.') }}</span>
+                </div>
+            </td>
+            @if(($i + 1) % 3 == 0)
+            </tr><tr>
+            @endif
+            @endforeach
+        </tr>
+    </table>
+    @endif
 
     <div class="footer">
         Dicetak otomatis oleh Sistem Masjid Digital pada {{ now()->translatedFormat('d F Y H:i') }}

@@ -8,6 +8,7 @@ use App\Models\FundIncome;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
@@ -112,15 +113,31 @@ class ReportController extends Controller
         }
 
        
+        $proofs = collect();
+
         if (in_array($type, ['semua', 'pengeluaran'])) {
             $expenses = FundExpense::whereBetween('transaction_date', [$startDate, $endDate])
                 ->get()
-                ->map(fn($item) => [
-                    'date' => $item->transaction_date,
-                    'description' => $item->title,
-                    'amount' => $item->amount,
-                    'type' => 'expense'
-                ])
+                ->map(function ($item) use (&$proofs) {
+                    $proofBase64 = $this->imageToBase64($item->proof_file);
+
+                    if ($proofBase64) {
+                        $proofs->push([
+                            'date' => $item->transaction_date,
+                            'description' => $item->title,
+                            'amount' => $item->amount,
+                            'image' => $proofBase64,
+                        ]);
+                    }
+
+                    return [
+                        'date' => $item->transaction_date,
+                        'description' => $item->title,
+                        'amount' => $item->amount,
+                        'type' => 'expense',
+                        'proof' => $proofBase64,
+                    ];
+                })
                 ->sortBy('date');
         }
 
@@ -141,6 +158,28 @@ class ReportController extends Controller
             'saldo_awal' => $saldoAwal,
             
             'saldo_akhir' => $saldoAwal + $allIncomes->sum('amount') - $expenses->sum('amount'),
+            'proofs' => $proofs->sortBy('date')->values(),
         ];
+    }
+
+    /**
+     * Convert file gambar di disk 'public' menjadi data URI base64
+     * supaya bisa ditampilkan langsung oleh DomPDF tanpa bergantung
+     * pada symlink storage atau akses URL publik.
+     */
+    private function imageToBase64(?string $path): ?string
+    {
+        if (!$path || !Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        try {
+            $mime = Storage::disk('public')->mimeType($path) ?: 'image/jpeg';
+            $contents = Storage::disk('public')->get($path);
+
+            return 'data:' . $mime . ';base64,' . base64_encode($contents);
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

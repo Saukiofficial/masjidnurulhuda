@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { Wallet, TrendingUp, TrendingDown, Clock, Activity, Building2, X, Copy, FileText, Eye, Calendar, Filter, ListFilter } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Clock, Activity, Building2, X, Copy, FileText, Eye, Calendar, Filter, ListFilter, Download } from 'lucide-react';
 
 export default function Home({ stats, renovationProgress, chartData, recentActivities, bankAccounts, physicalDonationStats = {}, physicalDonationSummary = [], recentPhysicalDonations = [] }) {
 
@@ -65,8 +65,22 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
             alert('Tanggal Mulai tidak boleh lebih besar dari Tanggal Akhir.');
             return;
         }
-        // Kirim request custom report beserta type-nya
+        // Kirim request custom report beserta type-nya (tampil di tab baru, tanpa dipaksa download)
         window.open(`/laporan/custom?start_date=${startDate}&end_date=${endDate}&type=${reportType}&stream=true`, '_blank');
+        setIsReportModalOpen(false);
+    };
+
+    const handleCustomReportDownload = () => {
+        if (!startDate || !endDate) {
+            alert('Mohon pilih Tanggal Mulai dan Tanggal Akhir terlebih dahulu.');
+            return;
+        }
+        if (new Date(startDate) > new Date(endDate)) {
+            alert('Tanggal Mulai tidak boleh lebih besar dari Tanggal Akhir.');
+            return;
+        }
+        // Sama seperti di atas, tapi tanpa stream=true sehingga file langsung terunduh
+        window.open(`/laporan/custom?start_date=${startDate}&end_date=${endDate}&type=${reportType}`, '_blank');
         setIsReportModalOpen(false);
     };
 
@@ -447,12 +461,22 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                         <div className="px-3 sm:px-6 pb-3 sm:pb-5 pt-2.5 sm:pt-4 border-t border-slate-100 bg-white space-y-2 sm:space-y-3">
                             <p className="text-[8px] sm:text-[11px] text-center text-slate-400 font-semibold uppercase tracking-widest">Akses Laporan Resmi</p>
                             <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                                <a href="/laporan/bulanan?stream=true" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-teal-50 hover:to-emerald-50 border border-gray-200 hover:border-teal-300 text-gray-700 hover:text-teal-700 rounded-lg sm:rounded-xl transition-all text-[8px] sm:text-xs font-bold shadow-sm hover:shadow-md">
-                                    <Eye size={10} className="sm:w-3.5 sm:h-3.5" /> Bulanan
-                                </a>
-                                <a href="/laporan/mingguan?stream=true" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-teal-50 hover:to-emerald-50 border border-gray-200 hover:border-teal-300 text-gray-700 hover:text-teal-700 rounded-lg sm:rounded-xl transition-all text-[8px] sm:text-xs font-bold shadow-sm hover:shadow-md">
-                                    <Eye size={10} className="sm:w-3.5 sm:h-3.5" /> Jumat
-                                </a>
+                                <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-teal-50 hover:to-emerald-50 border border-gray-200 hover:border-teal-300 text-gray-700 hover:text-teal-700 rounded-lg sm:rounded-xl transition-all shadow-sm hover:shadow-md">
+                                    <a href="/laporan/bulanan?stream=true" target="_blank" rel="noreferrer" className="flex items-center gap-1 sm:gap-2 text-[8px] sm:text-xs font-bold">
+                                        <Eye size={10} className="sm:w-3.5 sm:h-3.5" /> Bulanan
+                                    </a>
+                                    <a href="/laporan/bulanan" className="pl-1.5 sm:pl-2 ml-0.5 border-l border-gray-300 hover:text-teal-700" title="Download Laporan Bulanan">
+                                        <Download size={10} className="sm:w-3.5 sm:h-3.5" />
+                                    </a>
+                                </div>
+                                <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-teal-50 hover:to-emerald-50 border border-gray-200 hover:border-teal-300 text-gray-700 hover:text-teal-700 rounded-lg sm:rounded-xl transition-all shadow-sm hover:shadow-md">
+                                    <a href="/laporan/mingguan?stream=true" target="_blank" rel="noreferrer" className="flex items-center gap-1 sm:gap-2 text-[8px] sm:text-xs font-bold">
+                                        <Eye size={10} className="sm:w-3.5 sm:h-3.5" /> Jumat
+                                    </a>
+                                    <a href="/laporan/mingguan" className="pl-1.5 sm:pl-2 ml-0.5 border-l border-gray-300 hover:text-teal-700" title="Download Laporan Jumat">
+                                        <Download size={10} className="sm:w-3.5 sm:h-3.5" />
+                                    </a>
+                                </div>
                             </div>
                             <button onClick={() => setIsReportModalOpen(true)} className="w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg sm:rounded-xl transition-all text-[8px] sm:text-xs font-bold shadow-md hover:shadow-lg">
                                 <Filter size={10} className="sm:w-3.5 sm:h-3.5" /> Filter & Cetak Laporan
@@ -892,9 +916,14 @@ export default function Home({ stats, renovationProgress, chartData, recentActiv
                                     <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Sampai Tanggal (Akhir)</label>
                                     <input type="date" className="w-full border-2 border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-700 text-sm" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                                 </div>
-                                <button onClick={handleCustomReport} className="w-full mt-2 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 sm:py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg text-sm">
-                                    <FileText size={16} /> Tampilkan Laporan
-                                </button>
+                                <div className="flex items-stretch gap-2 mt-2">
+                                    <button onClick={handleCustomReport} className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 sm:py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg text-sm">
+                                        <FileText size={16} /> Tampilkan Laporan
+                                    </button>
+                                    <button onClick={handleCustomReportDownload} className="flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 sm:py-3 px-3.5 sm:px-4 rounded-xl transition-all shadow-md hover:shadow-lg" title="Download Laporan">
+                                        <Download size={16} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
