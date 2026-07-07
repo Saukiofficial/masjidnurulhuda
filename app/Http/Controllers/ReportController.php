@@ -14,6 +14,8 @@ class ReportController extends Controller
 {
     public function downloadWeekly(Request $request)
     {
+        ini_set('memory_limit', '512M');
+
         $startDate = Carbon::now()->startOfWeek();
         $endDate = Carbon::now()->endOfWeek();
 
@@ -31,6 +33,8 @@ class ReportController extends Controller
 
     public function downloadMonthly(Request $request)
     {
+        ini_set('memory_limit', '512M');
+
         $startDate = Carbon::now()->startOfMonth();
         $endDate = Carbon::now()->endOfMonth();
 
@@ -49,6 +53,8 @@ class ReportController extends Controller
    
     public function downloadCustom(Request $request)
     {
+        ini_set('memory_limit', '512M');
+
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
@@ -119,15 +125,21 @@ class ReportController extends Controller
             $expenses = FundExpense::whereBetween('transaction_date', [$startDate, $endDate])
                 ->get()
                 ->map(function ($item) use (&$proofs) {
-                    $proofBase64 = $this->imageToBase64($item->proof_file);
+                    // Thumbnail kecil buat kolom "Bukti" di tabel utama
+                    $thumbBase64 = $this->imageToBase64($item->proof_file, maxWidth: 120, quality: 70);
 
-                    if ($proofBase64) {
-                        $proofs->push([
-                            'date' => $item->transaction_date,
-                            'description' => $item->title,
-                            'amount' => $item->amount,
-                            'image' => $proofBase64,
-                        ]);
+                    if ($item->proof_file) {
+                        // Versi lebih besar (tapi tetap dikompres) khusus lampiran
+                        $largeBase64 = $this->imageToBase64($item->proof_file, maxWidth: 700, quality: 75);
+
+                        if ($largeBase64) {
+                            $proofs->push([
+                                'date' => $item->transaction_date,
+                                'description' => $item->title,
+                                'amount' => $item->amount,
+                                'image' => $largeBase64,
+                            ]);
+                        }
                     }
 
                     return [
@@ -135,7 +147,7 @@ class ReportController extends Controller
                         'description' => $item->title,
                         'amount' => $item->amount,
                         'type' => 'expense',
-                        'proof' => $proofBase64,
+                        'proof' => $thumbBase64,
                     ];
                 })
                 ->sortBy('date');
@@ -166,18 +178,55 @@ class ReportController extends Controller
      * Convert file gambar di disk 'public' menjadi data URI base64
      * supaya bisa ditampilkan langsung oleh DomPDF tanpa bergantung
      * pada symlink storage atau akses URL publik.
+     *
+     * PENTING: gambar di-resize & dikompres dulu sebelum di-encode.
+     * Foto nota dari HP bisa 3-5MB / resolusi 4000px+, kalau dipakai
+     * mentah-mentah lalu ditumpuk untuk banyak baris pengeluaran +
+     * lampiran, ini yang bikin memory_limit jebol pas render PDF.
      */
-    private function imageToBase64(?string $path): ?string
+    private function imageToBase64(?string $path, int $maxWidth = 500, int $quality = 75): ?string
     {
         if (!$path || !Storage::disk('public')->exists($path)) {
             return null;
         }
 
         try {
-            $mime = Storage::disk('public')->mimeType($path) ?: 'image/jpeg';
             $contents = Storage::disk('public')->get($path);
 
-            return 'data:' . $mime . ';base64,' . base64_encode($contents);
+            $source = @imagecreatefromstring($contents);
+            if ($source === false) {
+                return null;
+            }
+
+            $origWidth = imagesx($source);
+            $origHeight = imagesy($source);
+
+            if ($origWidth > $maxWidth) {
+                $newWidth = $maxWidth;
+                $newHeight = (int) round($origHeight * ($maxWidth / $origWidth));
+
+                $resized = imagecreatetruecolor($newWidth, $newHeight);
+                // Jaga background putih (kalau source PNG transparan / JPEG)
+                $white = imagecolorallocate($resized, 255, 255, 255);
+                imagefill($resized, 0, 0, $white);
+
+                imagecopyresampled(
+                    $resized, $source,
+                    0, 0, 0, 0,
+                    $newWidth, $newHeight,
+                    $origWidth, $origHeight
+                );
+
+                imagedestroy($source);
+                $source = $resized;
+            }
+
+            ob_start();
+            imagejpeg($source, null, $quality);
+            $compressed = ob_get_clean();
+            imagedestroy($source);
+
+            return 'data:image/jpeg;base64,' . base64_encode($compressed);
         } catch (\Throwable $e) {
             return null;
         }

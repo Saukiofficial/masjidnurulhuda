@@ -55,6 +55,12 @@ class FundExpenseResource extends Resource
                         Forms\Components\FileUpload::make('proof_file')
                             ->label('Bukti Kwitansi/Nota')
                             ->image()
+                            ->imageEditor()
+                            ->imageResizeTargetWidth('1200')
+                            ->imageResizeTargetHeight('1200')
+                            ->imageResizeMode('contain')
+                            ->imageResizeUpscale(false)
+                            ->maxSize(5120) // 5MB, batas sebelum browser resize
                             ->directory('expenses-proof')
                             ->columnSpanFull(),
 
