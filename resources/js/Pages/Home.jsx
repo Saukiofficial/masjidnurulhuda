@@ -1,949 +1,432 @@
-import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
-import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
-} from 'recharts';
-import { Wallet, TrendingUp, TrendingDown, Clock, Activity, Building2, X, Copy, FileText, Eye, Calendar, Filter, ListFilter, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { 
+    Building2, Wallet, TrendingUp, TrendingDown, Clock, Activity, 
+    Calendar, Users, MapPin, ArrowRight, ChevronRight, PhoneCall,
+    Sparkles, ShieldCheck, HeartHandshake, FileText
+} from 'lucide-react';
+import MainLayout from '../Layouts/MainLayout';
 
-export default function Home({ stats, renovationProgress, chartData, recentActivities, bankAccounts, physicalDonationStats = {}, physicalDonationSummary = [], recentPhysicalDonations = [] }) {
-
-    const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
-    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-    
-    // States untuk filter tanggal dan tipe laporan
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [reportType, setReportType] = useState('semua'); // Default: Semua
-
+export default function Home({ 
+    profile, 
+    stats = {}, 
+    renovationProgress, 
+    upcomingEvents = [], 
+    leadMembers = [], 
+    bankAccounts = [], 
+    latestActivities = [] 
+}) {
     const formatRupiah = (number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency', currency: 'IDR',
             minimumFractionDigits: 0, maximumFractionDigits: 0
-        }).format(number);
+        }).format(number ?? 0);
     };
 
-    const toNumber = (value) => {
-        const number = Number(value ?? 0);
-        return Number.isFinite(number) ? number : 0;
-    };
+    // Jadwal Sholat Estimasi Wilayah Sumenep / Jawa Timur (WIB)
+    // Bisa disesuaikan otomatis dengan penanggalan
+    const prayerTimes = [
+        { name: 'Subuh', time: '04:12' },
+        { name: 'Terbit', time: '05:28' },
+        { name: 'Dzuhur', time: '11:32' },
+        { name: 'Ashar', time: '14:48' },
+        { name: 'Maghrib', time: '17:36' },
+        { name: 'Isya', time: '18:46' },
+    ];
 
-    const formatRupiahShort = (number) => {
-        const value = toNumber(number);
-        if (value >= 1000000000) return `Rp ${(value / 1000000000).toFixed(1)}M`;
-        if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(1)}jt`;
-        if (value >= 1000) return `Rp ${(value / 1000).toFixed(0)}rb`;
-        return `Rp ${value}`;
-    };
+    const [currentTime, setCurrentTime] = useState('');
+    const [currentDate, setCurrentDate] = useState('');
 
-    const averageMonthlyIncome = chartData && chartData.length > 0
-        ? chartData.reduce((total, item) => total + toNumber(item.pemasukan), 0) / chartData.length
-        : 0;
+    useEffect(() => {
+        const updateClock = () => {
+            const now = new Date();
+            setCurrentTime(now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB');
+            setCurrentDate(now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
+        };
+        updateClock();
+        const timer = setInterval(updateClock, 1000);
+        return () => clearInterval(timer);
+    }, []);
 
-    const averageMonthlyExpense = chartData && chartData.length > 0
-        ? chartData.reduce((total, item) => total + toNumber(item.pengeluaran), 0) / chartData.length
-        : 0;
-
-    const formatQuantity = (number) => {
-        const value = Number(number || 0);
-        return new Intl.NumberFormat('id-ID', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: value % 1 === 0 ? 0 : 2,
-        }).format(value);
-    };
-
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
-        alert('Nomor rekening berhasil disalin!');
-    };
-
-    const handleCustomReport = () => {
-        if (!startDate || !endDate) {
-            alert('Mohon pilih Tanggal Mulai dan Tanggal Akhir terlebih dahulu.');
-            return;
-        }
-        if (new Date(startDate) > new Date(endDate)) {
-            alert('Tanggal Mulai tidak boleh lebih besar dari Tanggal Akhir.');
-            return;
-        }
-        // Kirim request custom report beserta type-nya (tampil di tab baru, tanpa dipaksa download)
-        window.open(`/laporan/custom?start_date=${startDate}&end_date=${endDate}&type=${reportType}&stream=true`, '_blank');
-        setIsReportModalOpen(false);
-    };
-
-    const handleCustomReportDownload = () => {
-        if (!startDate || !endDate) {
-            alert('Mohon pilih Tanggal Mulai dan Tanggal Akhir terlebih dahulu.');
-            return;
-        }
-        if (new Date(startDate) > new Date(endDate)) {
-            alert('Tanggal Mulai tidak boleh lebih besar dari Tanggal Akhir.');
-            return;
-        }
-        // Sama seperti di atas, tapi tanpa stream=true sehingga file langsung terunduh
-        window.open(`/laporan/custom?start_date=${startDate}&end_date=${endDate}&type=${reportType}`, '_blank');
-        setIsReportModalOpen(false);
-    };
+    const mosqueName = profile?.name || 'Masjid Nurul Huda';
+    const heroTitle = profile?.hero_title || 'Selamat Datang di Portal Resmi Masjid Nurul Huda';
+    const heroSubtitle = profile?.hero_subtitle || 'Menjaga amanah jamaah dengan keterbukaan informasi, transparansi dana donasi, dan pelayanan umat yang amanah.';
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 font-sans text-slate-800">
-            <Head title="Laporan Keuangan Masjid Nurul Huda" />
+        <MainLayout>
+            <Head title={`Beranda - ${mosqueName}`} />
 
-            {/* ═══ HERO ═══ */}
-            <div className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-teal-800 to-emerald-900">
-                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-900/50 to-emerald-900"></div>
-                </div>
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400"></div>
+            {/* ═══ 1. HERO SECTION ═══ */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-teal-900 to-emerald-900 text-white">
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-                {/* NAVBAR */}
-                <nav className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-2">
-                    <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 px-3 sm:px-6 py-3 shadow-2xl">
-                        <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                                <div className="relative flex-shrink-0">
-                                    <div className="absolute inset-0 bg-amber-400 rounded-xl blur-md opacity-50"></div>
-                                    <div className="relative bg-gradient-to-br from-amber-400 to-yellow-500 p-2 sm:p-2.5 rounded-xl shadow-lg">
-                                        <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-900" />
-                                    </div>
-                                </div>
-                                <div className="min-w-0">
-                                    <h1 className="text-sm sm:text-xl lg:text-2xl font-bold text-white tracking-wide truncate">Masjid Nurul Huda</h1>
-                                    <p className="text-[10px] sm:text-xs text-emerald-200 hidden sm:block">Laporan Dana Masjid</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
-                                <button onClick={() => setIsReportModalOpen(true)} className="hidden lg:flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-emerald-100 hover:text-white rounded-lg transition text-sm font-medium border border-white/20">
-                                    <Filter size={15} /> Filter Laporan
-                                </button>
-                                <button onClick={() => setIsReportModalOpen(true)} className="lg:hidden flex items-center justify-center w-9 h-9 bg-white/10 hover:bg-white/20 text-emerald-100 rounded-xl border border-white/20 transition" title="Filter">
-                                    <Filter size={16} />
-                                </button>
-                                <button onClick={() => setIsDonationModalOpen(true)} className="relative group overflow-hidden bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-emerald-900 px-3 sm:px-6 py-2 sm:py-2.5 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl font-bold text-xs sm:text-base">
-                                    <span className="relative z-10 flex items-center gap-1.5">
-                                        <Wallet size={15} className="sm:w-[18px] sm:h-[18px]" />
-                                        <span className="hidden sm:inline">Donasi Sekarang</span>
-                                        <span className="sm:hidden">Donasi</span>
-                                    </span>
-                                    <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-
-                {/* HERO CONTENT */}
-                <div className="relative z-10 max-w-7xl mx-auto py-6 sm:py-12 lg:py-20 px-3 sm:px-6 lg:px-8 text-white">
-                    <div className="mb-5 sm:mb-8 flex justify-center">
-                        <div className="bg-white/10 backdrop-blur-sm px-4 sm:px-8 py-2 sm:py-3 rounded-full border border-amber-400/30 shadow-lg">
-                            <p className="text-amber-300 text-sm sm:text-2xl lg:text-3xl text-center" style={{ fontFamily: 'serif' }}>بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8 lg:gap-12 items-center mb-4 sm:mb-8">
-                        <div className="text-center lg:text-left">
-                            <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-3 sm:mb-6 leading-tight">
-                                <span className="bg-gradient-to-r from-white via-emerald-100 to-white bg-clip-text text-transparent">Laporan</span>
-                                <br />
-                                <span className="text-amber-300 drop-shadow-lg">Dana Masjid Nurul Huda</span>
-                            </h2>
-                            <p className="text-emerald-100 text-xs sm:text-lg md:text-xl mb-4 sm:mb-8 leading-relaxed">
-                                Menjaga amanah dengan menyajikan laporan keuangan masjid secara terbuka, akurat, dan dapat diakses kapan saja oleh jamaah.
-                            </p>
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-24">
+                    <div className="text-center max-w-3xl mx-auto space-y-6">
+                        {/* Bismillah */}
+                        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-5 py-2 rounded-full border border-amber-400/30 shadow-lg">
+                            <span className="text-amber-300 text-base sm:text-xl font-serif">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</span>
                         </div>
 
-                        <div className="space-y-3 sm:space-y-6">
-                            <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-amber-400/20 p-4 sm:p-8 shadow-2xl">
-                                <div className="flex items-start gap-2 sm:gap-4">
-                                    <div className="text-amber-400 text-2xl sm:text-4xl leading-none flex-shrink-0">"</div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-emerald-50 text-xs sm:text-lg italic leading-relaxed text-right mb-2 sm:mb-3" style={{ fontFamily: 'serif' }}>
-                                            كُلُّكُمْ رَاعٍ وَكُلُّكُمْ مَسْئُولٌ عَنْ رَعِيَّتِهِ
-                                        </p>
-                                        <p className="text-emerald-100 text-[10px] sm:text-sm leading-relaxed">
-                                            "Setiap kalian adalah pemimpin dan setiap kalian akan dimintai pertanggungjawaban atas yang dipimpinnya"
-                                        </p>
-                                        <p className="text-amber-300/80 text-[10px] sm:text-xs mt-1.5 font-medium">— HR. Bukhari & Muslim</p>
-                                    </div>
-                                    <div className="text-amber-400 text-2xl sm:text-4xl leading-none self-end flex-shrink-0">"</div>
-                                </div>
-                            </div>
+                        {/* Title */}
+                        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                            <span className="bg-gradient-to-r from-white via-emerald-100 to-white bg-clip-text text-transparent">
+                                {heroTitle}
+                            </span>
+                        </h1>
 
-                            {renovationProgress && (
-                                <div className="bg-white/10 backdrop-blur-md p-4 sm:p-8 rounded-2xl border border-white/20 shadow-2xl">
-                                    <div className="flex justify-between items-center mb-3 sm:mb-4 gap-2">
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <div className="bg-amber-400/20 p-1.5 sm:p-2 rounded-lg flex-shrink-0">
-                                                <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
-                                            </div>
-                                            <span className="font-bold text-white text-xs sm:text-lg truncate">{renovationProgress.title}</span>
-                                        </div>
-                                        <span className="text-amber-300 font-bold text-xl sm:text-3xl flex-shrink-0">{renovationProgress.percentage}%</span>
-                                    </div>
-                                    <div className="w-full bg-emerald-950/50 rounded-full h-3 sm:h-4 overflow-hidden shadow-inner">
-                                        <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(251,191,36,0.6)] relative overflow-hidden" style={{ width: `${renovationProgress.percentage}%` }}>
-                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-                                        </div>
-                                    </div>
-                                    <div className="text-[10px] sm:text-xs text-emerald-200/90 mt-3 flex justify-between gap-2">
-                                        <span className="flex items-center gap-1"><Clock size={10} /> Target: Insya Allah Segera</span>
-                                        <span className="flex items-center gap-1"><Activity size={10} /> {new Date(renovationProgress.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                                    </div>
-                                </div>
-                            )}
+                        {/* Subtitle */}
+                        <p className="text-emerald-100/90 text-sm sm:text-lg leading-relaxed max-w-2xl mx-auto">
+                            {heroSubtitle}
+                        </p>
+
+                        {/* Action CTA Buttons */}
+                        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                            <Link
+                                href="/keuangan"
+                                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-500 hover:to-yellow-500 text-emerald-950 font-black text-sm sm:text-base shadow-lg shadow-amber-500/25 hover:shadow-xl transition-all flex items-center gap-2"
+                            >
+                                <Wallet className="w-5 h-5" />
+                                <span>Laporan Keuangan & Kas</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+
+                            <Link
+                                href="/pengurus"
+                                className="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm sm:text-base border border-white/20 backdrop-blur-md transition-all flex items-center gap-2"
+                            >
+                                <Users className="w-5 h-5 text-emerald-300" />
+                                <span>Pengurus Takmir</span>
+                            </Link>
+
+                            <Link
+                                href="/kegiatan"
+                                className="px-6 py-3.5 rounded-2xl bg-emerald-800/80 hover:bg-emerald-800 text-white font-bold text-sm sm:text-base border border-emerald-600/40 transition-all flex items-center gap-2"
+                            >
+                                <Calendar className="w-5 h-5 text-amber-300" />
+                                <span>Agenda & Kajian</span>
+                            </Link>
                         </div>
                     </div>
                 </div>
 
-                <div className="absolute bottom-0 w-full">
-                    <svg className="w-full h-8 sm:h-20 lg:h-32" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                        <defs>
-                            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style={{ stopColor: 'rgb(241 245 249)', stopOpacity: 0 }} />
-                                <stop offset="100%" style={{ stopColor: 'rgb(241 245 249)', stopOpacity: 1 }} />
-                            </linearGradient>
-                        </defs>
-                        <path fill="url(#waveGradient)" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                {/* Gelombang Bawah Hero */}
+                <div className="w-full overflow-hidden leading-none">
+                    <svg className="w-full h-8 sm:h-16" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                        <path d="M0,0 C150,90 350,-40 500,60 C650,160 900,10 1200,40 L1200,120 L0,120 Z" fill="#f8fafc"></path>
                     </svg>
                 </div>
             </div>
 
-            {/* ═══ STATISTIK — 3 kolom selalu ═══ */}
-            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mt-4 sm:-mt-16 lg:-mt-28 relative z-20 mb-5 sm:mb-12">
-                <div className="grid grid-cols-3 gap-2 sm:gap-5 lg:gap-6">
-
-                    {/* Pemasukan — KIRI */}
-                    <div className="group bg-gradient-to-br from-white to-emerald-50/50 p-3 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border-t-4 border-emerald-500 hover:-translate-y-1 sm:hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-14 sm:w-32 h-14 sm:h-32 bg-emerald-500/5 rounded-full -mr-7 sm:-mr-16 -mt-7 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-                        <div className="relative">
-                            <div className="flex items-start justify-between mb-2 sm:mb-4">
-                                <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg sm:rounded-2xl text-white shadow-md">
-                                    <TrendingUp size={14} className="sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
-                                </div>
-                                <span className="bg-emerald-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-emerald-700">MASUK</span>
+            {/* ═══ 2. JADWAL SHOLAT WIDGET ═══ */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-10 relative z-20 mb-12">
+                <div className="bg-white rounded-3xl shadow-xl border border-slate-200/80 p-4 sm:p-6 backdrop-blur-sm">
+                    <div className="flex flex-col sm:flex-row items-center justify-between pb-4 mb-4 border-b border-slate-100 gap-2 text-center sm:text-left">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                                <Clock className="w-5 h-5" />
                             </div>
-                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">PEMASUKAN</p>
-                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
-                                {formatRupiah(stats.totalIncome)}
-                            </h3>
-                            <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-600 font-medium mt-2">
-                                <TrendingUp size={12} /><span>Berkah Berlimpah</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Pengeluaran — TENGAH */}
-                    <div className="group bg-gradient-to-br from-white to-red-50/50 p-3 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border-t-4 border-red-500 hover:-translate-y-1 sm:hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-14 sm:w-32 h-14 sm:h-32 bg-red-500/5 rounded-full -mr-7 sm:-mr-16 -mt-7 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-                        <div className="relative">
-                            <div className="flex items-start justify-between mb-2 sm:mb-4">
-                                <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-lg sm:rounded-2xl text-white shadow-md">
-                                    <TrendingDown size={14} className="sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
-                                </div>
-                                <span className="bg-red-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-red-700">KELUAR</span>
-                            </div>
-                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">PENGELUARAN</p>
-                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
-                                {formatRupiah(stats.totalExpense)}
-                            </h3>
-                            <div className="hidden sm:flex items-center gap-1.5 text-xs text-red-600 font-medium mt-2">
-                                <Activity size={12} /><span>Dikelola Transparan</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Saldo — KANAN */}
-                    <div className="group bg-gradient-to-br from-white to-blue-50/50 p-3 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border-t-4 border-blue-500 hover:-translate-y-1 sm:hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-14 sm:w-32 h-14 sm:h-32 bg-blue-500/5 rounded-full -mr-7 sm:-mr-16 -mt-7 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-                        <div className="relative">
-                            <div className="flex items-start justify-between mb-2 sm:mb-4">
-                                <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-2xl text-white shadow-md">
-                                    <Wallet size={14} className="sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
-                                </div>
-                                <span className="bg-blue-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold text-blue-700">KAS</span>
-                            </div>
-                            <p className="text-[8px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">SiSA SALDO</p>
-                            <h3 className="text-[7px] xs:text-[9px] sm:text-xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent leading-tight break-all sm:break-normal">
-                                {formatRupiah(stats.balance)}
-                            </h3>
-                            <div className="hidden sm:flex items-center gap-1.5 text-xs text-blue-600 font-medium mt-2">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span>Update Real-time</span>
-                            </div>
-                            <div className="sm:hidden flex items-center gap-1 text-[8px] text-blue-500 font-medium mt-1">
-                                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span>Live</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            {/* ═══ GRAFIK & AKTIVITAS ═══ */}
-            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mb-8 sm:mb-14">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-
-                    {/* GRAFIK */}
-                    <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border-t-4 border-amber-400">
-                        <div className="flex items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 flex-wrap">
                             <div>
-                                <h3 className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800 flex items-center gap-2">
-                                    <div className="w-1 sm:w-1.5 h-5 sm:h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full"></div>
-                                    Grafik Keuangan Bulanan
-                                </h3>
-                                <p className="text-[10px] sm:text-sm text-gray-500 mt-0.5 ml-3 sm:ml-4">Perbandingan Pemasukan & Pengeluaran</p>
-                            </div>
-                            <div className="flex gap-2 sm:gap-4 text-[9px] sm:text-sm ml-3 sm:ml-0">
-                                <div className="flex items-center gap-1 sm:gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                    <span className="text-gray-600 font-medium">Pemasukan</span>
-                                </div>
-                                <div className="flex items-center gap-1 sm:gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                                    <span className="text-gray-600 font-medium">Pengeluaran</span>
-                                </div>
+                                <h3 className="font-extrabold text-slate-800 text-sm sm:text-base">Jadwal Sholat Hari Ini</h3>
+                                <p className="text-xs text-slate-500">Kec. Lenteng, Kab. Sumenep & Sekitarnya (WIB)</p>
                             </div>
                         </div>
-
-                        <div className="h-44 sm:h-64 lg:h-80">
-                            {chartData && chartData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={chartData} margin={{ top: 5, right: 5, left: -28, bottom: 5 }}>
-                                        <defs>
-                                            <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
-                                                <stop offset="100%" stopColor="#059669" stopOpacity={0.8} />
-                                            </linearGradient>
-                                            <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="0%" stopColor="#ef4444" stopOpacity={1} />
-                                                <stop offset="100%" stopColor="#dc2626" stopOpacity={0.8} />
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                                        <XAxis dataKey="name" tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={{ stroke: '#e5e7eb' }} />
-                                        <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={{ stroke: '#e5e7eb' }} tickFormatter={(value) => `${(value / 1000000).toFixed(0)}jt`} width={36} />
-                                        <Tooltip formatter={(value) => formatRupiah(value)} contentStyle={{ backgroundColor: 'white', border: '2px solid #d1d5db', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '11px' }} />
-                                        <Legend wrapperStyle={{ paddingTop: '8px', fontSize: '10px' }} iconType="circle" />
-                                        <Bar dataKey="pemasukan" fill="url(#colorIncome)" name="Pemasukan" radius={[6, 6, 0, 0]} maxBarSize={48} />
-                                        <Bar dataKey="pengeluaran" fill="url(#colorExpense)" name="Pengeluaran" radius={[6, 6, 0, 0]} maxBarSize={48} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                                    <div className="bg-gray-100 p-4 sm:p-6 rounded-full mb-3 sm:mb-4">
-                                        <Activity size={32} className="sm:w-12 sm:h-12 opacity-30" />
-                                    </div>
-                                    <p className="text-sm sm:text-lg font-semibold">Belum ada data grafik</p>
-                                    <p className="text-xs sm:text-sm mt-1">Data akan muncul setelah ada transaksi</p>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="mt-3 sm:mt-6 pt-3 sm:pt-6 border-t border-gray-100">
-                            <div className="grid grid-cols-2 gap-2 sm:gap-4 text-center">
-                                <div className="bg-emerald-50 rounded-xl p-3 sm:p-4 border border-emerald-100">
-                                    <p className="text-[10px] sm:text-xs text-emerald-600 font-semibold mb-1">
-                                        Rata-rata Masuk/Bulan
-                                    </p>
-                                    <p className="text-xs sm:text-xl font-bold text-emerald-700 leading-tight break-words">
-                                        {formatRupiah(averageMonthlyIncome)}
-                                    </p>
-                                </div>
-
-                                <div className="bg-red-50 rounded-xl p-3 sm:p-4 border border-red-100">
-                                    <p className="text-[10px] sm:text-xs text-red-600 font-semibold mb-1">
-                                        Rata-rata Keluar/Bulan
-                                    </p>
-                                    <p className="text-xs sm:text-xl font-bold text-red-700 leading-tight break-words">
-                                        {formatRupiah(averageMonthlyExpense)}
-                                    </p>
-                                </div>
-                            </div>
+                        <div className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                            {currentDate ? `${currentDate} • ${currentTime}` : 'Waktu Indonesia Barat'}
                         </div>
                     </div>
 
-                    {/* AKTIVITAS TERKINI */}
-                    <div className="relative bg-gradient-to-b from-white to-slate-50 rounded-2xl shadow-xl overflow-hidden border border-slate-100" style={{ boxShadow: '0 4px 24px 0 rgba(16,185,129,0.07), 0 1.5px 6px 0 rgba(0,0,0,0.06)' }}>
-                        <div className="h-1.5 w-full bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-500"></div>
-
-                        <div className="px-3 sm:px-6 pt-3 sm:pt-5 pb-3 sm:pb-4 flex items-center justify-between border-b border-slate-100 bg-white">
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-200">
-                                    <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm sm:text-base font-extrabold text-slate-800 tracking-tight leading-none">Aktivitas Terkini</h3>
-                                    <p className="text-[9px] sm:text-xs text-slate-400 mt-0.5 font-medium">
-                                        {recentActivities && recentActivities.length > 0 ? `${recentActivities.length} transaksi terbaru` : 'Transaksi Terakhir'}
-                                    </p>
-                                </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
+                        {prayerTimes.map((item, idx) => (
+                            <div 
+                                key={item.name}
+                                className="bg-gradient-to-br from-slate-50 to-emerald-50/30 rounded-2xl p-3 sm:p-4 text-center border border-slate-100 hover:border-emerald-300 hover:shadow-md transition-all group"
+                            >
+                                <span className="text-[11px] font-bold text-slate-500 group-hover:text-emerald-700 transition uppercase tracking-wider">
+                                    {item.name}
+                                </span>
+                                <p className="text-lg sm:text-2xl font-black text-slate-800 font-mono mt-1 group-hover:text-emerald-800 transition">
+                                    {item.time}
+                                </p>
                             </div>
-                            <div className="flex items-center gap-1 sm:gap-1.5 bg-red-50 border border-red-200 rounded-full px-2 sm:px-3 py-0.5 sm:py-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                                <span className="text-[8px] sm:text-xs font-bold text-red-600 tracking-widest">LIVE</span>
-                            </div>
-                        </div>
-
-                        <div className="max-h-[320px] sm:max-h-[440px] lg:max-h-[500px] overflow-y-auto custom-scrollbar px-3 sm:px-4 py-3 sm:py-4">
-                            {recentActivities && recentActivities.length > 0 ? (
-                                <div className="relative">
-                                    <div className="absolute left-[17px] sm:left-[22px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-emerald-300 via-slate-200 to-slate-100 rounded-full"></div>
-                                    <div className="space-y-2 sm:space-y-3">
-                                        {recentActivities.map((activity) => {
-                                            const isIncome = activity.type === 'income';
-                                            return (
-                                                <div key={activity.id} className="relative flex gap-2 sm:gap-4 group">
-                                                    <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-9 sm:w-11 h-9 sm:h-11 mt-0.5">
-                                                        <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 ${isIncome ? 'bg-gradient-to-br from-amber-400 to-yellow-500 shadow-amber-200' : 'bg-gradient-to-br from-slate-200 to-slate-300 shadow-slate-200'}`}>
-                                                            {isIncome
-                                                                ? <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-amber-900" />
-                                                                : <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600" />
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        className={`flex-1 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border transition-all duration-300 group-hover:-translate-y-0.5 ${isIncome ? 'bg-gradient-to-br from-amber-50 via-yellow-50 to-white border-amber-200 group-hover:border-amber-400 group-hover:shadow-lg group-hover:shadow-amber-100' : 'bg-white border-slate-100 group-hover:border-slate-200 group-hover:shadow-md'}`}
-                                                        style={isIncome ? { boxShadow: '0 2px 12px 0 rgba(251,191,36,0.13)' } : {}}
-                                                    >
-                                                        <div className="flex items-start justify-between gap-1 mb-1.5 sm:mb-2">
-                                                            <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                                                                {isIncome && (
-                                                                    <span className="inline-flex items-center gap-0.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-900 text-[7px] sm:text-[10px] font-extrabold px-1.5 sm:px-2.5 py-0.5 rounded-full tracking-wide shadow-sm">
-                                                                        ✦ DONASI
-                                                                    </span>
-                                                                )}
-                                                                <span className={`text-[7px] sm:text-[10px] font-semibold px-1.5 sm:px-2.5 py-0.5 rounded-full border ${isIncome ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
-                                                                    {activity.category}
-                                                                </span>
-                                                            </div>
-                                                            <p className="text-[7px] sm:text-[10px] text-slate-400 font-medium whitespace-nowrap flex items-center gap-0.5 flex-shrink-0">
-                                                                <Clock size={7} className="sm:w-[10px] sm:h-[10px]" />
-                                                                {activity.date_formatted}
-                                                            </p>
-                                                        </div>
-                                                        <h4 className={`text-[9px] sm:text-sm font-bold leading-snug mb-1.5 sm:mb-2.5 ${isIncome ? 'text-amber-900' : 'text-slate-700'}`}>
-                                                            {activity.title}
-                                                        </h4>
-                                                        <div className="flex items-center justify-between gap-1">
-                                                            <span className={`text-[8px] sm:text-sm font-extrabold break-all sm:break-normal ${isIncome ? 'text-emerald-600' : 'text-red-500'}`}>
-                                                                {isIncome ? '+' : '−'}{' '}{formatRupiah(activity.amount)}
-                                                            </span>
-                                                            {isIncome && (
-                                                                <span className="text-amber-500 text-[8px] sm:text-xs font-medium" style={{ fontFamily: 'serif' }}>
-                                                                    جَزَاكَ اللهُ
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center h-40 sm:h-56 text-slate-400">
-                                    <div className="relative mb-3">
-                                        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
-                                            <Clock size={20} className="sm:w-7 sm:h-7 text-emerald-400" />
-                                        </div>
-                                        <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-400 flex items-center justify-center shadow">
-                                            <span className="text-[8px]">✦</span>
-                                        </div>
-                                    </div>
-                                    <p className="text-xs sm:text-sm font-semibold text-slate-500">Belum ada aktivitas</p>
-                                    <p className="text-[10px] sm:text-xs text-slate-400 mt-1">Jadilah yang pertama berdonasi 🤲</p>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="px-3 sm:px-6 pb-3 sm:pb-5 pt-2.5 sm:pt-4 border-t border-slate-100 bg-white space-y-2 sm:space-y-3">
-                            <p className="text-[8px] sm:text-[11px] text-center text-slate-400 font-semibold uppercase tracking-widest">Akses Laporan Resmi</p>
-                            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                                <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-teal-50 hover:to-emerald-50 border border-gray-200 hover:border-teal-300 text-gray-700 hover:text-teal-700 rounded-lg sm:rounded-xl transition-all shadow-sm hover:shadow-md">
-                                    <a href="/laporan/bulanan?stream=true" target="_blank" rel="noreferrer" className="flex items-center gap-1 sm:gap-2 text-[8px] sm:text-xs font-bold">
-                                        <Eye size={10} className="sm:w-3.5 sm:h-3.5" /> Bulanan
-                                    </a>
-                                    <a href="/laporan/bulanan" className="pl-1.5 sm:pl-2 ml-0.5 border-l border-gray-300 hover:text-teal-700" title="Download Laporan Bulanan">
-                                        <Download size={10} className="sm:w-3.5 sm:h-3.5" />
-                                    </a>
-                                </div>
-                                <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-teal-50 hover:to-emerald-50 border border-gray-200 hover:border-teal-300 text-gray-700 hover:text-teal-700 rounded-lg sm:rounded-xl transition-all shadow-sm hover:shadow-md">
-                                    <a href="/laporan/mingguan?stream=true" target="_blank" rel="noreferrer" className="flex items-center gap-1 sm:gap-2 text-[8px] sm:text-xs font-bold">
-                                        <Eye size={10} className="sm:w-3.5 sm:h-3.5" /> Jumat
-                                    </a>
-                                    <a href="/laporan/mingguan" className="pl-1.5 sm:pl-2 ml-0.5 border-l border-gray-300 hover:text-teal-700" title="Download Laporan Jumat">
-                                        <Download size={10} className="sm:w-3.5 sm:h-3.5" />
-                                    </a>
-                                </div>
-                            </div>
-                            <button onClick={() => setIsReportModalOpen(true)} className="w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg sm:rounded-xl transition-all text-[8px] sm:text-xs font-bold shadow-md hover:shadow-lg">
-                                <Filter size={10} className="sm:w-3.5 sm:h-3.5" /> Filter & Cetak Laporan
-                            </button>
-                        </div>
+                        ))}
                     </div>
-
                 </div>
             </div>
 
-
-            {/* ═══ DONASI FISIK ═══ */}
-            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mb-8 sm:mb-14">
-                <div className="text-center mb-6 sm:mb-10">
-                    <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-1.5 mb-3">
-                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                        <span className="text-xs font-bold text-amber-700 uppercase tracking-widest">Donasi Fisik Renovasi</span>
+            {/* ═══ 3. SPOTLIGHT: SALDO KAS & PROGRES RENOVASI ═══ */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-14">
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-1 mb-2 text-xs font-bold text-emerald-800">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Transparansi Dana & Pembangunan</span>
                     </div>
-                    <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-2">
-                        Bantuan <span className="text-emerald-600">Material & Barang</span>
+                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+                        Amanah Kas Masjid & Progres Fisik
                     </h2>
-                    <p className="text-xs sm:text-sm text-slate-500 max-w-2xl mx-auto">
-                        Transparansi bantuan fisik seperti semen, pasir, batu, besi, tanah, dan kebutuhan renovasi lainnya.
+                    <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto mt-1">
+                        Laporan keterbukaan dana infaq, sedekah donatur, serta perkembangan renovasi masjid secara berkala.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-5 mb-5 sm:mb-8">
-                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-100 p-3 sm:p-5">
-                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Kartu Saldo Kas */}
+                    <div className="bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                        <div>
+                            <div className="flex items-center justify-between gap-2 mb-4">
+                                <span className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+                                    <Wallet className="w-4 h-4" /> Saldo Kas Masjid Saat Ini
+                                </span>
+                                <span className="bg-emerald-800/80 text-emerald-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-700">
+                                    REALTIME
+                                </span>
                             </div>
-                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase">Barang Diterima</span>
-                        </div>
-                        <p className="text-lg sm:text-3xl font-extrabold text-emerald-700">
-                            {physicalDonationStats?.totalItems || 0}
-                        </p>
-                    </div>
 
-                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-100 p-3 sm:p-5">
-                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-amber-100 flex items-center justify-center">
-                                <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
-                            </div>
-                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase">Estimasi Nilai</span>
-                        </div>
-                        <p className="text-[11px] sm:text-2xl font-extrabold text-amber-700 leading-tight break-all">
-                            {formatRupiah(physicalDonationStats?.totalEstimatedValue || 0)}
-                        </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-100 p-3 sm:p-5">
-                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-blue-100 flex items-center justify-center">
-                                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                            </div>
-                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase">Menunggu</span>
-                        </div>
-                        <p className="text-lg sm:text-3xl font-extrabold text-blue-700">
-                            {physicalDonationStats?.totalPending || 0}
-                        </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-100 p-3 sm:p-5">
-                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-teal-100 flex items-center justify-center">
-                                <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600" />
-                            </div>
-                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase">Digunakan</span>
-                        </div>
-                        <p className="text-lg sm:text-3xl font-extrabold text-teal-700">
-                            {physicalDonationStats?.totalUsed || 0}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                    <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-                        <div className="h-1.5 bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-500"></div>
-                        <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between gap-3">
-                            <div>
-                                <h3 className="text-base sm:text-xl font-extrabold text-slate-800">Rekap Material Terkumpul</h3>
-                                <p className="text-[10px] sm:text-sm text-slate-500 mt-1">Jumlah bantuan fisik berdasarkan jenis barang dan satuan.</p>
-                            </div>
-                            <div className="hidden sm:flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span className="text-xs font-bold text-emerald-700">TERUPDATE</span>
-                            </div>
-                        </div>
-
-                        <div className="p-4 sm:p-6">
-                            {physicalDonationSummary && physicalDonationSummary.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                                    {physicalDonationSummary.map((item, index) => (
-                                        <div key={`${item.item_name}-${item.unit}-${index}`} className="group rounded-xl border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-4 hover:border-emerald-200 hover:shadow-md transition-all">
-                                            <div className="flex items-start justify-between gap-3 mb-3">
-                                                <div>
-                                                    <h4 className="text-sm sm:text-base font-extrabold text-slate-800 group-hover:text-emerald-700 transition">
-                                                        {item.item_name}
-                                                    </h4>
-                                                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Satuan: {item.unit}</p>
-                                                </div>
-                                                <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                                    <span className="text-amber-700 font-black text-sm">✦</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-end justify-between gap-2">
-                                                <div>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Total</p>
-                                                    <p className="text-xl sm:text-2xl font-black text-emerald-700">
-                                                        {formatQuantity(item.total_quantity)} <span className="text-xs sm:text-sm text-slate-500 font-bold">{item.unit}</span>
-                                                    </p>
-                                                </div>
-                                                <p className="text-[10px] sm:text-xs text-amber-700 font-bold bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
-                                                    {formatRupiah(item.total_estimated_value || 0)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-10 text-slate-400">
-                                    <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-                                        <FileText className="w-7 h-7 opacity-40" />
-                                    </div>
-                                    <p className="text-sm font-bold text-slate-500">Belum ada data donasi fisik</p>
-                                    <p className="text-xs mt-1 text-center">Data akan muncul setelah admin menambahkan donasi fisik dan mengaktifkan tampil di frontend.</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-                        <div className="h-1.5 bg-gradient-to-r from-emerald-400 to-amber-400"></div>
-                        <div className="p-4 sm:p-6 border-b border-slate-100">
-                            <h3 className="text-base sm:text-xl font-extrabold text-slate-800">Donasi Fisik Terbaru</h3>
-                            <p className="text-[10px] sm:text-sm text-slate-500 mt-1">Bantuan material yang dicatat panitia.</p>
-                        </div>
-
-                        <div className="max-h-[460px] overflow-y-auto p-4 space-y-3 custom-scrollbar">
-                            {recentPhysicalDonations && recentPhysicalDonations.length > 0 ? (
-                                recentPhysicalDonations.map((donation) => (
-                                    <div key={donation.id} className="rounded-xl border border-slate-100 bg-gradient-to-br from-white to-emerald-50/40 p-3 hover:shadow-md transition-all">
-                                        <div className="flex items-start gap-3">
-                                            {donation.photo ? (
-                                                <img
-                                                    src={`/storage/${donation.photo}`}
-                                                    alt={donation.item_name}
-                                                    className="w-12 h-12 rounded-xl object-cover border border-slate-100 flex-shrink-0"
-                                                />
-                                            ) : (
-                                                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                                    <FileText className="w-5 h-5 text-amber-700" />
-                                                </div>
-                                            )}
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex items-start justify-between gap-2 mb-1">
-                                                    <h4 className="font-extrabold text-slate-800 text-sm leading-tight truncate">
-                                                        {donation.item_name}
-                                                    </h4>
-                                                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-full whitespace-nowrap ${donation.status === 'used' ? 'bg-blue-100 text-blue-700' : donation.status === 'received' ? 'bg-emerald-100 text-emerald-700' : donation.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
-                                                        {donation.status === 'used' ? 'DIGUNAKAN' : donation.status === 'received' ? 'DITERIMA' : donation.status === 'pending' ? 'MENUNGGU' : 'DITOLAK'}
-                                                    </span>
-                                                </div>
-                                                <p className="text-xs font-bold text-emerald-700">
-                                                    {formatQuantity(donation.quantity)} {donation.unit}
-                                                </p>
-                                                <p className="text-[10px] text-slate-500 mt-1">
-                                                    Donatur: <span className="font-semibold text-slate-700">{donation.donor_name}</span>
-                                                </p>
-                                                <div className="flex items-center justify-between gap-2 mt-2">
-                                                    <span className="text-[9px] text-slate-400 flex items-center gap-1">
-                                                        <Clock size={9} /> {donation.date_formatted}
-                                                    </span>
-                                                    {donation.estimated_value > 0 && (
-                                                        <span className="text-[9px] font-bold text-amber-700">
-                                                            {formatRupiah(donation.estimated_value)}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-10 text-slate-400">
-                                    <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
-                                        <Clock className="w-7 h-7 text-emerald-400" />
-                                    </div>
-                                    <p className="text-sm font-bold text-slate-500">Belum ada donasi terbaru</p>
-                                    <p className="text-xs mt-1 text-center">Input data dari admin Filament terlebih dahulu.</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* ═══ LOKASI MASJID ═══ */}
-            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mb-8 sm:mb-14">
-                {/* Section Header */}
-                <div className="text-center mb-6 sm:mb-10">
-                    <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-1.5 mb-3">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest">Lokasi Kami</span>
-                    </div>
-                    <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-2">
-                        Temukan <span className="text-emerald-600">Masjid Nurul Huda</span>
-                    </h2>
-                    <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">Kami terbuka untuk seluruh jamaah. Datang, beribadah, dan bersama membangun masjid yang lebih baik.</p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 items-stretch">
-
-                    {/* Info Card — kiri */}
-                    <div className="lg:col-span-2 flex flex-col gap-3 sm:gap-4">
-
-                        {/* Alamat */}
-                        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-4 sm:p-6 flex-1">
-                            <div className="flex items-start gap-3 sm:gap-4">
-                                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-200">
-                                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-[10px] sm:text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">Alamat Lengkap</p>
-                                    <h3 className="text-sm sm:text-base font-extrabold text-slate-800 mb-1">Masjid Nurul Huda</h3>
-                                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">XQ5M+RGC, Daleman, Poreh, Kec. Lenteng,<br className="hidden sm:inline"/> Kabupaten Sumenep, Jawa Timur 69461</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Jam Sholat */}
-                        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-4 sm:p-6">
-                            <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-md shadow-amber-200">
-                                    <Clock className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-900" />
-                                </div>
-                                <p className="text-xs sm:text-sm font-extrabold text-slate-800">Waktu Sholat Berjamaah</p>
-                            </div>
-                            <div className="space-y-2 sm:space-y-2.5">
-                                {[
-                                    { name: 'Subuh', time: '04.30', color: 'bg-indigo-100 text-indigo-700' },
-                                    { name: 'Dzuhur', time: '12.00', color: 'bg-amber-100 text-amber-700' },
-                                    { name: 'Ashar', time: '15.15', color: 'bg-orange-100 text-orange-700' },
-                                    { name: 'Maghrib', time: '17.45', color: 'bg-rose-100 text-rose-700' },
-                                    { name: "Isya'", time: '19.00', color: 'bg-emerald-100 text-emerald-700' },
-                                ].map((sholat) => (
-                                    <div key={sholat.name} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <span className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full ${sholat.color}`}>{sholat.name}</span>
-                                        </div>
-                                        <span className="text-xs sm:text-sm font-bold text-slate-700 font-mono">{sholat.time} WIB</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <p className="text-[9px] sm:text-[10px] text-slate-400 italic mt-3 text-center">*Waktu dapat berbeda, sesuaikan jadwal setempat</p>
-                        </div>
-
-                        {/* Tombol Google Maps */}
-                        <a
-                            href="https://maps.google.com/?q=-7.040240993042894,113.7839145327516"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="group flex items-center justify-center gap-2 sm:gap-3 w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3 sm:py-4 px-4 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:shadow-emerald-200 text-xs sm:text-sm transform hover:-translate-y-0.5"
-                        >
-                            <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                            Buka di Google Maps
-                            <svg className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
-                        </a>
-                    </div>
-
-                    {/* Peta — kanan */}
-                    <div className="lg:col-span-3 relative rounded-2xl overflow-hidden shadow-xl border-2 border-amber-200" style={{minHeight: '320px'}}>
-                        {/* Decorative corner ornament */}
-                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-500 z-10"></div>
-                        <div className="absolute top-2 left-2 z-10 bg-white/90 backdrop-blur-sm rounded-xl px-3 py-1.5 shadow-md border border-amber-200 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span className="text-[10px] sm:text-xs font-bold text-slate-700">Masjid Nurul Huda</span>
-                        </div>
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!3m2!1sid!2sid!4v1771774324154!5m2!1sid!2sid!6m8!1m7!1s8qDKDyXyEEfA9qi9z9rIKA!2m2!1d-7.040240993042894!2d113.7839145327516!3f205.00391180723352!4f-3.6468265286988526!5f0.7820865974627469"
-                            className="w-full h-full absolute inset-0"
-                            style={{ border: 0, minHeight: '320px' }}
-                            allowFullScreen=""
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                            title="Lokasi Masjid Nurul Huda"
-                        ></iframe>
-                        {/* Subtle vignette overlay */}
-                        <div className="absolute inset-0 pointer-events-none rounded-2xl" style={{boxShadow: 'inset 0 0 30px 4px rgba(0,0,0,0.07)'}}></div>
-                    </div>
-
-                </div>
-            </div>
-
-            {/* ═══ FOOTER ═══ */}
-            <footer className="relative bg-gradient-to-br from-emerald-900 via-teal-800 to-emerald-900 text-gray-300 py-8 sm:py-12 overflow-hidden">
-                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400"></div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    <div className="text-center mb-5 sm:mb-8">
-                        <div className="flex justify-center items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                            <div className="bg-gradient-to-br from-amber-400 to-yellow-500 p-2 sm:p-3 rounded-xl shadow-lg">
-                                <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-900" />
-                            </div>
-                            <div className="text-left">
-                                <h3 className="text-base sm:text-xl font-bold text-white">Masjid Nurul Huda</h3>
-                                <p className="text-[10px] sm:text-sm text-emerald-200">Cahaya Petunjuk Umat</p>
-                            </div>
-                        </div>
-                        <div className="bg-white/10 backdrop-blur-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full inline-block mb-4 sm:mb-6 border border-white/20">
-                            <p className="text-amber-300 text-xs sm:text-sm font-medium">مَنْ بَنَى لِلَّهِ مَسْجِدًا بَنَى اللَّهُ لَهُ بَيْتًا فِي الْجَنَّةِ</p>
-                        </div>
-                        <p className="text-emerald-100 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed italic mb-1.5 sm:mb-2">
-                            "Barangsiapa membangun masjid karena Allah, maka Allah akan membangunkan baginya rumah di surga"
-                        </p>
-                        <p className="text-amber-300/80 text-[10px] sm:text-xs font-medium mb-5 sm:mb-8">— HR. Bukhari & Muslim</p>
-                    </div>
-                    <div className="border-t border-white/10 pt-4 sm:pt-6">
-                        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-                            <p className="text-emerald-200 text-center text-[10px] sm:text-sm">
-                                &copy; {new Date().getFullYear()} <span className="font-semibold text-white">Masjid Nurul Huda</span>. Developer by Sauki Annaim
+                            <p className="text-3xl sm:text-5xl font-black text-amber-300 font-mono tracking-tight mb-4">
+                                {formatRupiah(stats?.balance || 0)}
                             </p>
+
+                            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-emerald-800/70">
+                                <div>
+                                    <p className="text-[11px] text-emerald-300 font-medium">Total Pemasukan</p>
+                                    <p className="text-base sm:text-lg font-bold text-emerald-100">
+                                        {formatRupiah(stats?.totalIncome || 0)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[11px] text-rose-300 font-medium">Total Pengeluaran</p>
+                                    <p className="text-base sm:text-lg font-bold text-rose-200">
+                                        {formatRupiah(stats?.totalExpense || 0)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="pt-6 mt-6 border-t border-emerald-800/50 flex flex-wrap items-center justify-between gap-3">
+                            <span className="text-xs text-emerald-300/80">Tersedia pembukuan kas & unduh laporan PDF mingguan</span>
+                            <Link 
+                                href="/keuangan"
+                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-400 hover:bg-amber-500 text-emerald-950 font-bold rounded-xl text-xs transition shadow-md"
+                            >
+                                <span>Lihat Mutasi Lengkap</span>
+                                <ChevronRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* Kartu Progres Renovasi */}
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center justify-between gap-2 mb-4">
+                                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                    <Activity className="w-4 h-4 text-emerald-600" /> Tahap Renovasi Masjid
+                                </span>
+                                <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-200">
+                                    DALAM PROSES
+                                </span>
+                            </div>
+
+                            <h3 className="text-xl sm:text-2xl font-black text-slate-900 mb-2">
+                                {renovationProgress?.title || 'Pembangunan & Perluasan Masjid'}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
+                                {renovationProgress?.description || 'Pengerjaan renovasi sarana dan prasarana fisik masjid untuk meningkatkan kapasitas dan kenyamanan ibadah jamaah.'}
+                            </p>
+
+                            {/* Progress Bar */}
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center text-sm font-bold">
+                                    <span className="text-slate-700">Persentase Pengerjaan</span>
+                                    <span className="text-2xl font-black text-emerald-700">{renovationProgress?.percentage || 0}%</span>
+                                </div>
+                                <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden border border-slate-200 shadow-inner">
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-1000 shadow-md"
+                                        style={{ width: `${renovationProgress?.percentage || 0}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="pt-6 mt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                            <span className="text-xs text-slate-500">Menerima bantuan donasi uang maupun material fisik</span>
+                            <Link 
+                                href="/keuangan"
+                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-emerald-50 text-emerald-800 hover:text-emerald-900 font-bold rounded-xl text-xs border border-slate-200 transition"
+                            >
+                                <span>Rekap Bantuan Material</span>
+                                <ChevronRight className="w-4 h-4" />
+                            </Link>
                         </div>
                     </div>
                 </div>
-            </footer>
+            </div>
 
-            {/* ═══ MODAL DONASI — Bottom sheet on mobile ═══ */}
-            {isDonationModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in" onClick={() => setIsDonationModalOpen(false)}>
-                    <div className="bg-gradient-to-br from-white to-emerald-50/30 rounded-t-3xl sm:rounded-3xl shadow-2xl w-full sm:max-w-md relative overflow-hidden animate-slide-up border-4 border-amber-400/20" onClick={(e) => e.stopPropagation()}>
-                        {/* Drag handle mobile */}
-                        <div className="flex justify-center pt-2.5 sm:hidden">
-                            <div className="w-9 h-1 bg-gray-300 rounded-full"></div>
-                        </div>
-                        <div className="relative bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 px-6 py-6 sm:px-8 sm:py-10 text-center overflow-hidden">
-                            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")` }}></div>
-                            <button onClick={() => setIsDonationModalOpen(false)} className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-1.5 sm:p-2 transition">
-                                <X size={18} />
-                            </button>
-                            <div className="relative">
-                                <div className="bg-white/20 backdrop-blur-sm w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg border-2 border-white/30">
-                                    <Wallet className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
-                                </div>
-                                <h3 className="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2">Salurkan Donasi</h3>
-                                <p className="text-emerald-100 text-xs sm:text-sm leading-relaxed px-2 sm:px-4">Infaq & sedekah Anda adalah amanah yang akan kami kelola dengan penuh tanggung jawab</p>
+            {/* ═══ 4. AGENDA & KEGIATAN TERDEKAT ═══ */}
+            <div className="bg-gradient-to-b from-slate-50 via-emerald-50/20 to-slate-50 py-14 border-y border-slate-200/60">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
+                        <div>
+                            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase tracking-widest bg-emerald-100 px-3 py-1 rounded-full mb-2">
+                                <Calendar className="w-3.5 h-3.5 text-emerald-700" />
+                                <span>Jadwal Dakwah & Jamaah</span>
                             </div>
+                            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+                                Agenda & Kegiatan Terdekat
+                            </h2>
                         </div>
+                        <Link 
+                            href="/kegiatan"
+                            className="inline-flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-800 group"
+                        >
+                            <span>Lihat Semua Agenda</span>
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
 
-                        <div className="p-5 sm:p-8 max-h-[55vh] sm:max-h-none overflow-y-auto custom-scrollbar">
-                            <div className="text-center mb-4 sm:mb-6">
-                                <p className="text-emerald-700 text-base sm:text-xl mb-1.5 sm:mb-2" style={{ fontFamily: 'serif' }}>بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
-                                <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent mx-auto"></div>
-                            </div>
-
-                            <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6 max-h-[160px] sm:max-h-[300px] overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
-                                {bankAccounts && bankAccounts.length > 0 ? (
-                                    bankAccounts.map((bank) => (
-                                        <div key={bank.id} className="group relative overflow-hidden p-3.5 sm:p-5 border-2 border-emerald-200 hover:border-amber-400 rounded-2xl bg-gradient-to-br from-emerald-50 to-white hover:shadow-lg transition-all duration-300">
-                                            <div className="relative flex justify-between items-start gap-2">
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-1.5 sm:mb-3">
-                                                        <div className="bg-emerald-600 w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                            <Building2 size={12} className="sm:w-4 sm:h-4 text-white" />
-                                                        </div>
-                                                        <p className="text-xs font-bold text-emerald-800 uppercase tracking-wider truncate">{bank.bank_name}</p>
-                                                    </div>
-                                                    <p className="text-base sm:text-2xl font-bold text-gray-800 font-mono mb-1 sm:mb-2 tracking-wide">{bank.account_number}</p>
-                                                    <p className="text-xs text-gray-600 font-medium">a.n {bank.account_name}</p>
-                                                </div>
-                                                <button onClick={() => copyToClipboard(bank.account_number)} className="p-2 sm:p-3 hover:bg-white rounded-xl transition-all text-emerald-600 hover:text-amber-600 hover:scale-110 shadow-sm hover:shadow-md flex-shrink-0">
-                                                    <Copy size={16} className="sm:w-5 sm:h-5" />
-                                                </button>
-                                            </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {upcomingEvents && upcomingEvents.length > 0 ? (
+                            upcomingEvents.map((event) => (
+                                <div 
+                                    key={event.id}
+                                    className="bg-white rounded-3xl p-6 shadow-md hover:shadow-xl border border-slate-200/80 transition-all flex flex-col justify-between group"
+                                >
+                                    <div>
+                                        <div className="flex items-center justify-between gap-2 mb-3">
+                                            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                {event.category}
+                                            </span>
+                                            <span className="text-xs font-semibold text-slate-500">
+                                                {new Date(event.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </span>
                                         </div>
-                                    ))
+
+                                        <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-emerald-700 transition line-clamp-2 mb-2">
+                                            {event.title}
+                                        </h3>
+
+                                        {event.speaker && (
+                                            <p className="text-xs text-amber-700 font-semibold mb-2">
+                                                🎙️ {event.speaker}
+                                            </p>
+                                        )}
+
+                                        <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed mb-4">
+                                            {event.description || 'Mari hadir dan makmurkan kegiatan ibadah serta pengajian di masjid.'}
+                                        </p>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
+                                        <span>⏰ {event.time || 'Waktu sholat'}</span>
+                                        <span>📍 {event.location || 'Masjid'}</span>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="col-span-3 text-center py-10 bg-white rounded-3xl border border-dashed border-slate-300">
+                                <p className="text-sm text-slate-500 font-medium">Belum ada agenda kegiatan mendatang yang dijadwalkan.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* ═══ 5. PENGURUS TAKMIR MASJID ═══ */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+                <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
+                    <div>
+                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase tracking-widest bg-emerald-100 px-3 py-1 rounded-full mb-2">
+                            <Users className="w-3.5 h-3.5 text-emerald-700" />
+                            <span>Struktur Takmir</span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+                            Pengurus Masjid Nurul Huda
+                        </h2>
+                    </div>
+                    <Link 
+                        href="/pengurus"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-800 group"
+                    >
+                        <span>Seluruh Pengurus</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {leadMembers.map((member) => (
+                        <div 
+                            key={member.id}
+                            className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-lg border border-slate-200/80 transition-all text-center group"
+                        >
+                            <div className="w-20 h-20 rounded-2xl mx-auto mb-4 overflow-hidden shadow-md bg-gradient-to-br from-emerald-500 to-teal-700 p-0.5">
+                                {member.photo ? (
+                                    <img src={`/storage/${member.photo}`} alt={member.name} className="w-full h-full object-cover rounded-2xl" />
                                 ) : (
-                                    <div className="text-center py-4 text-gray-500 text-sm"><p>Belum ada data rekening.</p></div>
+                                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-emerald-800 font-black text-xl rounded-2xl">
+                                        {member.name.charAt(0)}
+                                    </div>
                                 )}
                             </div>
 
-                            <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-2xl p-4 sm:p-5 border-2 border-emerald-200">
-                                <p className="text-[10px] sm:text-xs text-emerald-800 font-semibold mb-2 sm:mb-3 text-center">📱 Konfirmasi Donasi via WhatsApp</p>
-                                <a href="https://wa.me/6281225815155?text=Assalamu'alaikum,%20saya%20sudah%20transfer%20donasi%20sebesar..." target="_blank" rel="noreferrer" className="block w-full text-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-2.5 sm:py-3 px-4 rounded-xl transition-all shadow-md text-xs sm:text-sm">
-                                    Hubungi Admin: +62 812-2581-5155
-                                </a>
-                            </div>
+                            <span className="inline-block text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 mb-2">
+                                {member.position}
+                            </span>
+                            <h3 className="font-extrabold text-slate-900 text-sm sm:text-base group-hover:text-emerald-700 transition">
+                                {member.name}
+                            </h3>
+                            <p className="text-[11px] text-slate-500 mt-1">Periode {member.period || '2024-2029'}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
 
-                            <div className="mt-4 text-center pb-1">
-                                <p className="text-[10px] sm:text-xs text-gray-500 italic">"Semoga Allah membalas kebaikan Anda dengan berlipat ganda"</p>
-                                <p className="text-amber-600 text-xs sm:text-sm mt-1.5" style={{ fontFamily: 'serif' }}>جَزَاكَ اللهُ خَيْرًا</p>
+            {/* ═══ 6. LOKASI MASJID ═══ */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+                <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                        <div>
+                            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase tracking-widest bg-emerald-100 px-3 py-1 rounded-full mb-3">
+                                <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                                <span>Alamat & Lokasi</span>
                             </div>
+                            <h2 className="text-2xl font-black text-slate-900 mb-2">
+                                Kunjungi Masjid Kami
+                            </h2>
+                            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                                {profile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461'}
+                            </p>
+                            <div className="space-y-2 text-xs text-slate-600 mb-6">
+                                <p className="flex items-center gap-2">
+                                    <PhoneCall className="w-4 h-4 text-emerald-600" />
+                                    <span>Call Center: {profile?.phone || '081234567890'}</span>
+                                </p>
+                            </div>
+                            <Link 
+                                href="/kontak"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-bold transition shadow-md"
+                            >
+                                <span>Kirim Pesan ke Takmir</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+
+                        <div className="lg:col-span-2 h-64 sm:h-80 rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!3m2!1sid!2sid!4v1771774324154!5m2!1sid!2sid!6m8!1m7!1s8qDKDyXyEEfA9qi9z9rIKA!2m2!1d-7.040240993042894!2d113.7839145327516!3f205.00391180723352!4f-3.6468265286988526!5f0.7820865974627469"
+                                className="w-full h-full"
+                                style={{ border: 0 }}
+                                allowFullScreen=""
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                title="Lokasi Masjid Nurul Huda"
+                            ></iframe>
                         </div>
                     </div>
                 </div>
-            )}
-
-            {/* ═══ MODAL FILTER — Bottom sheet on mobile ═══ */}
-            {isReportModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in" onClick={() => setIsReportModalOpen(false)}>
-                    <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full sm:max-w-md relative overflow-hidden animate-slide-up border-t-8 border-emerald-500" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex justify-center pt-2.5 sm:hidden">
-                            <div className="w-9 h-1 bg-gray-300 rounded-full"></div>
-                        </div>
-                        <button onClick={() => setIsReportModalOpen(false)} className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 sm:p-2 transition">
-                            <X size={18} />
-                        </button>
-                        <div className="p-5 sm:p-8">
-                            <div className="text-center mb-4 sm:mb-6">
-                                <div className="bg-emerald-100 w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 text-emerald-600">
-                                    <ListFilter size={22} className="sm:w-8 sm:h-8" />
-                                </div>
-                                <h3 className="text-lg sm:text-2xl font-bold text-gray-800">Filter Cetak Laporan</h3>
-                                <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">Pilih kategori dan rentang tanggal untuk mencetak laporan spesifik.</p>
-                            </div>
-                            <div className="space-y-4 sm:space-y-5">
-                                {/* Pilihan Kategori / Tipe Laporan */}
-                                <div>
-                                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Kategori Laporan</label>
-                                    <select 
-                                        className="w-full border-2 border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-700 bg-white text-sm"
-                                        value={reportType}
-                                        onChange={(e) => setReportType(e.target.value)}
-                                    >
-                                        <option value="semua">Semua Transaksi (Buku Kas)</option>
-                                        <option value="pemasukan">Khusus Pemasukan Kas (Manual)</option>
-                                        <option value="donatur">Khusus Penerimaan Donasi</option>
-                                        <option value="pengeluaran">Khusus Pengeluaran</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Dari Tanggal (Mulai)</label>
-                                    <input type="date" className="w-full border-2 border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-700 text-sm" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                                </div>
-                                <div>
-                                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Sampai Tanggal (Akhir)</label>
-                                    <input type="date" className="w-full border-2 border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-700 text-sm" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                                </div>
-                                <div className="flex items-stretch gap-2 mt-2">
-                                    <button onClick={handleCustomReport} className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 sm:py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg text-sm">
-                                        <FileText size={16} /> Tampilkan Laporan
-                                    </button>
-                                    <button onClick={handleCustomReportDownload} className="flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 sm:py-3 px-3.5 sm:px-4 rounded-xl transition-all shadow-md hover:shadow-lg" title="Download Laporan">
-                                        <Download size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <style jsx>{`
-                @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-                @keyframes scale-in { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-                @keyframes slide-up { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-                @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-                .animate-fade-in { animation: fade-in 0.25s ease-out; }
-                .animate-scale-in { animation: scale-in 0.3s ease-out; }
-                .animate-slide-up { animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1); }
-                .animate-shimmer { animation: shimmer 2s infinite; }
-                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 10px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #0d9488; }
-            `}</style>
-        </div>
+            </div>
+        </MainLayout>
     );
 }

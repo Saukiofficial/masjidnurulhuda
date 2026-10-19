@@ -11,9 +11,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Panggil AdminSeeder
+        // Panggil Seeder
         $this->call([
             AdminSeeder::class,
+            MosqueDataSeeder::class,
         ]);
     }
 }

@@ -37,7 +37,13 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            'sharedProfile' => fn () => \App\Models\MosqueProfile::first(),
+            'sharedBankAccounts' => fn () => \App\Models\BankAccount::where('is_active', true)->get(),
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
+            'currentRoute' => $request->path() === '/' ? 'home' : explode('/', $request->path())[0],
         ];
     }
 }
