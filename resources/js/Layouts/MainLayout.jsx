@@ -55,38 +55,37 @@ export default function MainLayout({ children }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         {/* Brand / Logo */}
-                        <Link href="/" className="flex items-center gap-3 group">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-emerald-500/20 rounded-2xl blur-sm group-hover:blur-md transition"></div>
-                                <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 flex items-center justify-center text-white shadow-md shadow-emerald-900/10 group-hover:scale-105 transition-transform">
-                                    <Building2 className="w-6 h-6 text-amber-300" />
+                        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
+                            <div className="relative flex-shrink-0">
+                                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#073F35] flex items-center justify-center text-amber-300 shadow-md shadow-[#073F35]/20 group-hover:scale-105 transition-transform">
+                                    <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300" />
                                 </div>
                             </div>
-                            <div>
-                                <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight leading-tight group-hover:text-emerald-700 transition">
+                            <div className="min-w-0">
+                                <h1 className="text-base sm:text-lg lg:text-xl font-black text-[#102D31] tracking-tight leading-tight group-hover:text-[#0B5A49] transition truncate">
                                     {mosqueName}
                                 </h1>
-                                <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
+                                <p className="hidden sm:block text-[11px] sm:text-xs text-[#52646A] font-medium truncate">
                                     Poreh, Lenteng, Sumenep
                                 </p>
                             </div>
                         </Link>
 
                         {/* Desktop Navigation */}
-                        <nav className="hidden lg:flex items-center gap-1">
+                        <nav className="hidden lg:flex items-center gap-1.5">
                             {navItems.map((item) => {
                                 const isActive = currentRoute === item.route;
                                 return (
                                     <Link
                                         key={item.href}
                                         href={item.href}
-                                        className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                                        className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${
                                             isActive
-                                                ? 'bg-emerald-50 text-emerald-800 shadow-sm border border-emerald-200/70'
-                                                : 'text-slate-600 hover:text-emerald-700 hover:bg-slate-100/70'
+                                                ? 'bg-[#E7F5EF] text-[#0B5A49] shadow-sm'
+                                                : 'text-[#52646A] hover:text-[#0B5A49] hover:bg-slate-50'
                                         }`}
                                     >
-                                        <item.icon className={`w-4 h-4 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+                                        <item.icon className={`w-4 h-4 ${isActive ? 'text-[#0B5A49]' : 'text-slate-400'}`} />
                                         {item.label}
                                     </Link>
                                 );
@@ -95,21 +94,22 @@ export default function MainLayout({ children }) {
 
                         {/* CTA Button "Donasi Sekarang" & Mobile Menu Toggle */}
                         <div className="flex items-center gap-2.5">
+                            {/* Desktop Only: CTA Button "Donasi Sekarang" */}
                             <button
                                 onClick={() => setIsDonationModalOpen(true)}
-                                className="relative group overflow-hidden bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-500 hover:to-yellow-500 text-emerald-950 font-bold px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md shadow-amber-500/20 hover:shadow-lg transition-all duration-200 flex items-center gap-2 active:scale-95"
+                                className="hidden lg:flex bg-[#073F35] hover:bg-[#0B5A49] text-white font-bold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md shadow-[#073F35]/20 hover:shadow-lg transition-all duration-200 items-center gap-2 active:scale-95"
                             >
-                                <Wallet className="w-4 h-4 text-emerald-900" />
+                                <HeartHandshake className="w-4 h-4 text-emerald-300" />
                                 <span>Donasi Sekarang</span>
                             </button>
 
-                            {/* Mobile Hamburger Button */}
+                            {/* Mobile Hamburger / Menu Toggle Button */}
                             <button
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none"
+                                className="lg:hidden p-2 rounded-xl text-slate-700 hover:text-[#073F35] hover:bg-[#E7F5EF] transition focus:outline-none"
                                 aria-label="Toggle navigation menu"
                             >
-                                {isMobileMenuOpen ? <X className="w-6 h-6 text-emerald-700" /> : <Menu className="w-6 h-6" />}
+                                {isMobileMenuOpen ? <X className="w-6 h-6 text-[#073F35]" /> : <Menu className="w-6 h-6" />}
                             </button>
                         </div>
                     </div>
@@ -127,17 +127,31 @@ export default function MainLayout({ children }) {
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
                                         isActive
-                                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                            ? 'bg-[#E7F5EF] text-[#0B5A49] font-bold border border-[#CDE5DB]'
                                             : 'text-slate-700 hover:bg-slate-100'
                                     }`}
                                 >
-                                    <div className={`p-1.5 rounded-lg ${isActive ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                                    <div className={`p-1.5 rounded-lg ${isActive ? 'bg-[#073F35] text-white' : 'bg-slate-100 text-slate-600'}`}>
                                         <item.icon className="w-4 h-4" />
                                     </div>
                                     <span>{item.label}</span>
                                 </Link>
                             );
                         })}
+
+                        {/* Tombol Donasi Sekarang khusus Mobile di dalam Menu */}
+                        <div className="pt-3 mt-2 border-t border-slate-200/80">
+                            <button
+                                onClick={() => {
+                                    setIsMobileMenuOpen(false);
+                                    setIsDonationModalOpen(true);
+                                }}
+                                className="w-full bg-[#073F35] hover:bg-[#0B5A49] text-white font-bold px-4 py-3.5 rounded-2xl text-sm shadow-md shadow-[#073F35]/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
+                            >
+                                <HeartHandshake className="w-4 h-4 text-emerald-300" />
+                                <span>Donasi Sekarang</span>
+                            </button>
+                        </div>
                     </div>
                 )}
             </header>

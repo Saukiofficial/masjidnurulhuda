@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { 
     Building2, Wallet, TrendingUp, TrendingDown, Clock, Activity, 
     Calendar, Users, MapPin, ArrowRight, ChevronRight, PhoneCall,
-    Sparkles, ShieldCheck, HeartHandshake, FileText
+    Sparkles, ShieldCheck, HeartHandshake, Play, CheckCircle2
 } from 'lucide-react';
 import MainLayout from '../Layouts/MainLayout';
 
@@ -24,7 +24,6 @@ export default function Home({
     };
 
     // Jadwal Sholat Estimasi Wilayah Sumenep / Jawa Timur (WIB)
-    // Bisa disesuaikan otomatis dengan penanggalan
     const prayerTimes = [
         { name: 'Subuh', time: '04:12' },
         { name: 'Terbit', time: '05:28' },
@@ -49,104 +48,255 @@ export default function Home({
     }, []);
 
     const mosqueName = profile?.name || 'Masjid Nurul Huda';
-    const heroTitle = profile?.hero_title || 'Selamat Datang di Portal Resmi Masjid Nurul Huda';
-    const heroSubtitle = profile?.hero_subtitle || 'Menjaga amanah jamaah dengan keterbukaan informasi, transparansi dana donasi, dan pelayanan umat yang amanah.';
+    const heroImageUrl = profile?.hero_image 
+        ? ('/storage/' + profile.hero_image) 
+        : '/images/hero-mosque.jpg';
 
     return (
         <MainLayout>
             <Head title={`Beranda - ${mosqueName}`} />
 
-            {/* ═══ 1. HERO SECTION ═══ */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-teal-900 to-emerald-900 text-white">
-                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            {/* ═══ 1. HERO SECTION (REDESIGNED) ═══ */}
+            <div className="relative bg-[#FCFCF8] overflow-hidden border-b border-[#E2EBE6]">
+                {/* Latar Belakang Foto Arsitektur Masjid di Sisi Kanan (Desktop) */}
+                <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-[58%] h-full pointer-events-none select-none overflow-hidden">
+                    <img 
+                        src={heroImageUrl} 
+                        alt="Arsitektur Masjid Nurul Huda" 
+                        className="w-full h-full object-cover object-center transform scale-105"
+                    />
 
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-24">
-                    <div className="text-center max-w-3xl mx-auto space-y-6">
-                        {/* Bismillah */}
-                        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-5 py-2 rounded-full border border-amber-400/30 shadow-lg">
-                            <span className="text-amber-300 text-base sm:text-xl font-serif">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</span>
+                    {/* Gradient Fade Lembut dari Kiri ke Kanan agar Teks Kontras */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#FCFCF8] via-[#FCFCF8]/85 via-25% to-transparent"></div>
+
+                    {/* Ornamen Garis Arch Emas Halus Pembingkai Kubah */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 600 650" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path 
+                            d="M 60 300 L 60 190 Q 60 70, 180 70 L 220 70 Q 300 20, 320 0" 
+                            stroke="#D8B45A" 
+                            strokeWidth="1.8" 
+                            strokeOpacity="0.85" 
+                            fill="none" 
+                        />
+                    </svg>
+
+                    {/* Kurva Hijau & Emas Elegan di Sudut Bawah Kanan */}
+                    <div className="absolute -bottom-8 -right-8 w-64 h-36 pointer-events-none opacity-90">
+                        <svg viewBox="0 0 250 140" fill="none" className="w-full h-full">
+                            <path d="M 0 140 Q 140 100, 250 20 L 250 140 Z" fill="#073F35" />
+                            <path d="M 0 140 Q 140 100, 250 20" stroke="#D8B45A" strokeWidth="2.5" fill="none" />
+                        </svg>
+                    </div>
+                </div>
+
+                {/* Kontainer Konten Hero */}
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-14 pb-14 sm:pb-24 lg:pb-32">
+                    <div className="max-w-2xl lg:max-w-xl xl:max-w-2xl">
+                        {/* Basmalah dengan Garis Emas Halus */}
+                        <div className="inline-flex items-center gap-3 mb-4 sm:mb-6">
+                            <span className="w-8 sm:w-12 h-[1px] bg-[#D8B45A]/80"></span>
+                            <span className="text-[#073F35] text-base sm:text-xl font-serif tracking-wide" style={{ fontFamily: 'serif' }}>
+                                بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
+                            </span>
+                            <span className="w-8 sm:w-12 h-[1px] bg-[#D8B45A]/80"></span>
                         </div>
 
-                        {/* Title */}
-                        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
-                            <span className="bg-gradient-to-r from-white via-emerald-100 to-white bg-clip-text text-transparent">
-                                {heroTitle}
-                            </span>
+                        {/* Headline Utama */}
+                        <h1 className="text-3xl sm:text-5xl lg:text-[3.25rem] font-black text-[#102D31] tracking-tight leading-[1.08] mb-4 sm:mb-5">
+                            Selamat Datang di<br />
+                            Portal Resmi Masjid<br />
+                            <span className="text-[#0B5A49]">Nurul Huda</span>
                         </h1>
 
-                        {/* Subtitle */}
-                        <p className="text-emerald-100/90 text-sm sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                            {heroSubtitle}
+                        {/* Deskripsi */}
+                        <p className="text-sm sm:text-base text-[#52646A] leading-relaxed max-w-lg mb-6 sm:mb-8 font-normal">
+                            Menjaga amanah jamaah dengan keterbukaan informasi, transparansi dana donasi, dan pelayanan umat yang amanah.
                         </p>
 
-                        {/* Action CTA Buttons */}
-                        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                        {/* 3 Tombol CTA Hero */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                            {/* CTA Primer */}
                             <Link
                                 href="/keuangan"
-                                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-500 hover:to-yellow-500 text-emerald-950 font-black text-sm sm:text-base shadow-lg shadow-amber-500/25 hover:shadow-xl transition-all flex items-center gap-2"
+                                className="px-5 sm:px-6 py-3.5 rounded-2xl bg-[#073F35] hover:bg-[#0B5A49] text-white font-bold text-xs sm:text-sm shadow-[0_6px_18px_rgba(7,63,53,0.22)] hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group"
                             >
-                                <Wallet className="w-5 h-5" />
+                                <HeartHandshake className="w-4 h-4 text-emerald-300" />
                                 <span>Laporan Keuangan & Kas</span>
-                                <ArrowRight className="w-4 h-4" />
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Link>
 
+                            {/* CTA Sekunder 1 */}
                             <Link
                                 href="/pengurus"
-                                className="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm sm:text-base border border-white/20 backdrop-blur-md transition-all flex items-center gap-2"
+                                className="px-5 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-[#0B5A49] font-bold text-xs sm:text-sm border border-[#DCE6E1] shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center gap-2"
                             >
-                                <Users className="w-5 h-5 text-emerald-300" />
+                                <Users className="w-4 h-4 text-[#0B5A49]" />
                                 <span>Pengurus Takmir</span>
                             </Link>
 
+                            {/* CTA Sekunder 2 */}
                             <Link
                                 href="/kegiatan"
-                                className="px-6 py-3.5 rounded-2xl bg-emerald-800/80 hover:bg-emerald-800 text-white font-bold text-sm sm:text-base border border-emerald-600/40 transition-all flex items-center gap-2"
+                                className="px-5 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-[#0B5A49] font-bold text-xs sm:text-sm border border-[#DCE6E1] shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center gap-2"
                             >
-                                <Calendar className="w-5 h-5 text-amber-300" />
-                                <span>Agenda & Kajian</span>
+                                <Calendar className="w-4 h-4 text-[#0B5A49]" />
+                                <span>Agenda & Kegiatan</span>
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* Tampilan Foto Masjid Khusus Layar Ponsel (Mobile) */}
+                    <div className="lg:hidden mt-8 rounded-3xl overflow-hidden relative shadow-lg border border-[#DCE6E1]">
+                        <img 
+                            src={heroImageUrl} 
+                            alt="Masjid Nurul Huda" 
+                            className="w-full h-56 sm:h-72 object-cover object-center"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                        <div className="absolute bottom-3 left-4 right-4 text-white flex items-center justify-between">
+                            <span className="text-xs font-bold drop-shadow">Kubah & Menara Masjid</span>
+                            <span className="text-[10px] bg-white/20 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/30">
+                                Poreh, Sumenep
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ═══ 2. PANEL 4 FITUR UTAMA (OVERLAPPING HERO) ═══ */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-8 sm:-mt-12 mb-14 sm:mb-16">
+                <div className="bg-white/98 backdrop-blur-md rounded-3xl border border-[#DCE6E1] shadow-[0_14px_40px_rgba(16,45,49,0.08)] p-6 sm:p-8">
+                    {/* Desktop: 4 Kolom dengan Pemisah Halus | Mobile: Grid 2x2 */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 lg:divide-x lg:divide-slate-200/80">
+                        {/* Fitur 1: Transparansi */}
+                        <div className="text-center px-2 sm:px-5 flex flex-col items-center">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#E7F5EF] text-[#073F35] flex items-center justify-center mb-3 shadow-sm">
+                                <ShieldCheck className="w-6 h-6 sm:w-7 sm:h-7" />
+                            </div>
+                            <h3 className="font-extrabold text-[#102D31] text-sm sm:text-base mb-1">Transparansi</h3>
+                            <p className="text-[11px] sm:text-xs text-[#52646A] leading-relaxed max-w-[200px]">
+                                Laporan keuangan dan penggunaan dana yang jelas dan dapat diakses.
+                            </p>
+                        </div>
+
+                        {/* Fitur 2: Pelayanan Umat */}
+                        <div className="text-center px-2 sm:px-5 flex flex-col items-center">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#E7F5EF] text-[#073F35] flex items-center justify-center mb-3 shadow-sm">
+                                <Users className="w-6 h-6 sm:w-7 sm:h-7" />
+                            </div>
+                            <h3 className="font-extrabold text-[#102D31] text-sm sm:text-base mb-1">Pelayanan Umat</h3>
+                            <p className="text-[11px] sm:text-xs text-[#52646A] leading-relaxed max-w-[200px]">
+                                Melayani dengan sepenuh hati untuk kemaslahatan bersama.
+                            </p>
+                        </div>
+
+                        {/* Fitur 3: Agenda & Kegiatan */}
+                        <div className="text-center px-2 sm:px-5 flex flex-col items-center">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#E7F5EF] text-[#073F35] flex items-center justify-center mb-3 shadow-sm">
+                                <Calendar className="w-6 h-6 sm:w-7 sm:h-7" />
+                            </div>
+                            <h3 className="font-extrabold text-[#102D31] text-sm sm:text-base mb-1">Agenda & Kegiatan</h3>
+                            <p className="text-[11px] sm:text-xs text-[#52646A] leading-relaxed max-w-[200px]">
+                                Informasi kegiatan masjid terbaru dan terkini.
+                            </p>
+                        </div>
+
+                        {/* Fitur 4: Donasi */}
+                        <div className="text-center px-2 sm:px-5 flex flex-col items-center">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#E7F5EF] text-[#073F35] flex items-center justify-center mb-3 shadow-sm">
+                                <HeartHandshake className="w-6 h-6 sm:w-7 sm:h-7" />
+                            </div>
+                            <h3 className="font-extrabold text-[#102D31] text-sm sm:text-base mb-1">Donasi</h3>
+                            <p className="text-[11px] sm:text-xs text-[#52646A] leading-relaxed max-w-[200px]">
+                                Dukungan Anda sangat berarti untuk keberlangsungan masjid.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ═══ 3. SECTION TENTANG MASJID (SESUAI MOCKUP) ═══ */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    {/* Teks Tentang Masjid (7 Kolom) */}
+                    <div className="lg:col-span-7 space-y-4">
+                        <div className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-[#0B5A49] uppercase">
+                            <span className="w-4 h-[2px] bg-[#D8B45A]"></span>
+                            <span>TENTANG MASJID</span>
+                            <span className="w-4 h-[2px] bg-[#D8B45A]"></span>
+                        </div>
+                        <h2 className="text-2xl sm:text-4xl font-extrabold text-[#102D31] tracking-tight">
+                            {mosqueName}
+                        </h2>
+                        <p className="text-xs sm:text-sm text-[#52646A] leading-relaxed">
+                            {profile?.history || `${mosqueName} adalah pusat ibadah dan kegiatan umat yang berlokasi di Poreh, Lenteng, Sumenep. Kami berkomitmen untuk terus menjadi tempat ibadah yang nyaman, amanah, dan bermanfaat bagi seluruh jamaah.`}
+                        </p>
+                        <div className="pt-2">
+                            <Link 
+                                href="/pengurus"
+                                className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#073F35] hover:text-[#0B5A49] group"
+                            >
+                                <span>Lihat Profil & Struktur Kepengurusan</span>
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* Foto Card Profil Masjid (5 Kolom) */}
+                    <div className="lg:col-span-5">
+                        <div className="relative rounded-3xl overflow-hidden shadow-lg border border-[#DCE6E1] group">
+                            <img 
+                                src="/images/about-mosque.jpg" 
+                                alt={`Profil ${mosqueName}`}
+                                className="w-full h-56 sm:h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500" 
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                            
+                            <Link 
+                                href="/pengurus" 
+                                className="absolute bottom-4 left-4 right-4 flex items-center gap-3 bg-white/20 hover:bg-white/30 backdrop-blur-md p-2.5 rounded-2xl border border-white/30 text-white transition"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-[#073F35] text-amber-300 flex items-center justify-center flex-shrink-0 shadow-md">
+                                    <Play className="w-4 h-4 fill-amber-300 ml-0.5" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs font-bold leading-tight truncate">Profil Masjid</p>
+                                    <p className="text-[10px] text-emerald-200">Lihat selengkapnya</p>
+                                </div>
                             </Link>
                         </div>
                     </div>
                 </div>
-
-                {/* Gelombang Bawah Hero */}
-                <div className="w-full overflow-hidden leading-none">
-                    <svg className="w-full h-8 sm:h-16" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                        <path d="M0,0 C150,90 350,-40 500,60 C650,160 900,10 1200,40 L1200,120 L0,120 Z" fill="#f8fafc"></path>
-                    </svg>
-                </div>
             </div>
 
-            {/* ═══ 2. JADWAL SHOLAT WIDGET ═══ */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-10 relative z-20 mb-12">
-                <div className="bg-white rounded-3xl shadow-xl border border-slate-200/80 p-4 sm:p-6 backdrop-blur-sm">
+            {/* ═══ 4. JADWAL SHOLAT WIDGET ═══ */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+                <div className="bg-white rounded-3xl shadow-sm border border-[#DCE6E1] p-5 sm:p-7">
                     <div className="flex flex-col sm:flex-row items-center justify-between pb-4 mb-4 border-b border-slate-100 gap-2 text-center sm:text-left">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                            <div className="w-10 h-10 rounded-xl bg-[#E7F5EF] text-[#073F35] flex items-center justify-center font-bold">
                                 <Clock className="w-5 h-5" />
                             </div>
                             <div>
-                                <h3 className="font-extrabold text-slate-800 text-sm sm:text-base">Jadwal Sholat Hari Ini</h3>
-                                <p className="text-xs text-slate-500">Kec. Lenteng, Kab. Sumenep & Sekitarnya (WIB)</p>
+                                <h3 className="font-extrabold text-[#102D31] text-sm sm:text-base">Jadwal Sholat Hari Ini</h3>
+                                <p className="text-xs text-[#52646A]">Kec. Lenteng, Kab. Sumenep & Sekitarnya (WIB)</p>
                             </div>
                         </div>
-                        <div className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                        <div className="text-xs font-semibold text-[#0B5A49] bg-[#E7F5EF] px-3 py-1.5 rounded-xl border border-emerald-200">
                             {currentDate ? `${currentDate} • ${currentTime}` : 'Waktu Indonesia Barat'}
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
-                        {prayerTimes.map((item, idx) => (
+                        {prayerTimes.map((item) => (
                             <div 
                                 key={item.name}
-                                className="bg-gradient-to-br from-slate-50 to-emerald-50/30 rounded-2xl p-3 sm:p-4 text-center border border-slate-100 hover:border-emerald-300 hover:shadow-md transition-all group"
+                                className="bg-[#FCFCF8] rounded-2xl p-3 sm:p-4 text-center border border-slate-100 hover:border-emerald-300 hover:shadow-md transition-all group"
                             >
-                                <span className="text-[11px] font-bold text-slate-500 group-hover:text-emerald-700 transition uppercase tracking-wider">
+                                <span className="text-[11px] font-bold text-[#52646A] group-hover:text-[#0B5A49] transition uppercase tracking-wider">
                                     {item.name}
                                 </span>
-                                <p className="text-lg sm:text-2xl font-black text-slate-800 font-mono mt-1 group-hover:text-emerald-800 transition">
+                                <p className="text-lg sm:text-2xl font-black text-[#102D31] font-mono mt-1 group-hover:text-[#073F35] transition">
                                     {item.time}
                                 </p>
                             </div>
@@ -155,32 +305,32 @@ export default function Home({
                 </div>
             </div>
 
-            {/* ═══ 3. SPOTLIGHT: SALDO KAS & PROGRES RENOVASI ═══ */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-14">
+            {/* ═══ 5. SPOTLIGHT: SALDO KAS & PROGRES RENOVASI ═══ */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-1 mb-2 text-xs font-bold text-emerald-800">
+                    <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0B5A49] uppercase tracking-widest bg-[#E7F5EF] px-3.5 py-1 rounded-full mb-2">
                         <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                         <span>Transparansi Dana & Pembangunan</span>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+                    <h2 className="text-2xl sm:text-3xl font-black text-[#102D31]">
                         Amanah Kas Masjid & Progres Fisik
                     </h2>
-                    <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto mt-1">
+                    <p className="text-xs sm:text-sm text-[#52646A] max-w-xl mx-auto mt-1">
                         Laporan keterbukaan dana infaq, sedekah donatur, serta perkembangan renovasi masjid secara berkala.
                     </p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Kartu Saldo Kas */}
-                    <div className="bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden flex flex-col justify-between">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div className="bg-gradient-to-br from-[#073F35] via-[#0B5A49] to-[#073F35] text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
 
                         <div>
                             <div className="flex items-center justify-between gap-2 mb-4">
                                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
                                     <Wallet className="w-4 h-4" /> Saldo Kas Masjid Saat Ini
                                 </span>
-                                <span className="bg-emerald-800/80 text-emerald-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-700">
+                                <span className="bg-white/15 text-emerald-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20">
                                     REALTIME
                                 </span>
                             </div>
@@ -189,10 +339,10 @@ export default function Home({
                                 {formatRupiah(stats?.balance || 0)}
                             </p>
 
-                            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-emerald-800/70">
+                            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
                                 <div>
-                                    <p className="text-[11px] text-emerald-300 font-medium">Total Pemasukan</p>
-                                    <p className="text-base sm:text-lg font-bold text-emerald-100">
+                                    <p className="text-[11px] text-emerald-200 font-medium">Total Pemasukan</p>
+                                    <p className="text-base sm:text-lg font-bold text-white">
                                         {formatRupiah(stats?.totalIncome || 0)}
                                     </p>
                                 </div>
@@ -205,8 +355,8 @@ export default function Home({
                             </div>
                         </div>
 
-                        <div className="pt-6 mt-6 border-t border-emerald-800/50 flex flex-wrap items-center justify-between gap-3">
-                            <span className="text-xs text-emerald-300/80">Tersedia pembukuan kas & unduh laporan PDF mingguan</span>
+                        <div className="pt-6 mt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                            <span className="text-xs text-emerald-200/80">Tersedia pembukuan kas & unduh laporan PDF</span>
                             <Link 
                                 href="/keuangan"
                                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-400 hover:bg-amber-500 text-emerald-950 font-bold rounded-xl text-xs transition shadow-md"
@@ -218,21 +368,21 @@ export default function Home({
                     </div>
 
                     {/* Kartu Progres Renovasi */}
-                    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 flex flex-col justify-between">
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#DCE6E1] flex flex-col justify-between">
                         <div>
                             <div className="flex items-center justify-between gap-2 mb-4">
-                                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                                    <Activity className="w-4 h-4 text-emerald-600" /> Tahap Renovasi Masjid
+                                <span className="text-xs font-bold uppercase tracking-wider text-[#52646A] flex items-center gap-1.5">
+                                    <Activity className="w-4 h-4 text-[#0B5A49]" /> Tahap Renovasi Masjid
                                 </span>
                                 <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-200">
                                     DALAM PROSES
                                 </span>
                             </div>
 
-                            <h3 className="text-xl sm:text-2xl font-black text-slate-900 mb-2">
+                            <h3 className="text-xl sm:text-2xl font-black text-[#102D31] mb-2">
                                 {renovationProgress?.title || 'Pembangunan & Perluasan Masjid'}
                             </h3>
-                            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
+                            <p className="text-xs sm:text-sm text-[#52646A] leading-relaxed mb-6">
                                 {renovationProgress?.description || 'Pengerjaan renovasi sarana dan prasarana fisik masjid untuk meningkatkan kapasitas dan kenyamanan ibadah jamaah.'}
                             </p>
 
@@ -240,11 +390,11 @@ export default function Home({
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center text-sm font-bold">
                                     <span className="text-slate-700">Persentase Pengerjaan</span>
-                                    <span className="text-2xl font-black text-emerald-700">{renovationProgress?.percentage || 0}%</span>
+                                    <span className="text-2xl font-black text-[#073F35]">{renovationProgress?.percentage || 0}%</span>
                                 </div>
                                 <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden border border-slate-200 shadow-inner">
                                     <div 
-                                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-1000 shadow-md"
+                                        className="h-full bg-gradient-to-r from-[#0B5A49] to-[#16745E] rounded-full transition-all duration-1000 shadow-md"
                                         style={{ width: `${renovationProgress?.percentage || 0}%` }}
                                     ></div>
                                 </div>
@@ -252,10 +402,10 @@ export default function Home({
                         </div>
 
                         <div className="pt-6 mt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                            <span className="text-xs text-slate-500">Menerima bantuan donasi uang maupun material fisik</span>
+                            <span className="text-xs text-[#52646A]">Menerima donasi uang dan bantuan material fisik</span>
                             <Link 
                                 href="/keuangan"
-                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-emerald-50 text-emerald-800 hover:text-emerald-900 font-bold rounded-xl text-xs border border-slate-200 transition"
+                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-[#E7F5EF] text-[#073F35] font-bold rounded-xl text-xs border border-slate-200 transition"
                             >
                                 <span>Rekap Bantuan Material</span>
                                 <ChevronRight className="w-4 h-4" />
@@ -265,22 +415,22 @@ export default function Home({
                 </div>
             </div>
 
-            {/* ═══ 4. AGENDA & KEGIATAN TERDEKAT ═══ */}
-            <div className="bg-gradient-to-b from-slate-50 via-emerald-50/20 to-slate-50 py-14 border-y border-slate-200/60">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* ═══ 6. AGENDA & KEGIATAN TERDEKAT ═══ */}
+            <div className="bg-[#FCFCF8] py-14 border-t border-[#E2EBE6]">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
                         <div>
-                            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase tracking-widest bg-emerald-100 px-3 py-1 rounded-full mb-2">
-                                <Calendar className="w-3.5 h-3.5 text-emerald-700" />
+                            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0B5A49] uppercase tracking-widest bg-[#E7F5EF] px-3.5 py-1 rounded-full mb-2">
+                                <Calendar className="w-3.5 h-3.5 text-[#073F35]" />
                                 <span>Jadwal Dakwah & Jamaah</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+                            <h2 className="text-2xl sm:text-3xl font-black text-[#102D31]">
                                 Agenda & Kegiatan Terdekat
                             </h2>
                         </div>
                         <Link 
                             href="/kegiatan"
-                            className="inline-flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-800 group"
+                            className="inline-flex items-center gap-2 text-sm font-bold text-[#073F35] hover:text-[#0B5A49] group"
                         >
                             <span>Lihat Semua Agenda</span>
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -292,11 +442,11 @@ export default function Home({
                             upcomingEvents.map((event) => (
                                 <div 
                                     key={event.id}
-                                    className="bg-white rounded-3xl p-6 shadow-md hover:shadow-xl border border-slate-200/80 transition-all flex flex-col justify-between group"
+                                    className="bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-[#DCE6E1] transition-all flex flex-col justify-between group"
                                 >
                                     <div>
                                         <div className="flex items-center justify-between gap-2 mb-3">
-                                            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#E7F5EF] text-[#073F35] border border-emerald-200">
                                                 {event.category}
                                             </span>
                                             <span className="text-xs font-semibold text-slate-500">
@@ -304,7 +454,7 @@ export default function Home({
                                             </span>
                                         </div>
 
-                                        <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-emerald-700 transition line-clamp-2 mb-2">
+                                        <h3 className="text-base sm:text-lg font-black text-[#102D31] group-hover:text-[#0B5A49] transition line-clamp-2 mb-2">
                                             {event.title}
                                         </h3>
 
@@ -314,12 +464,12 @@ export default function Home({
                                             </p>
                                         )}
 
-                                        <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed mb-4">
+                                        <p className="text-xs text-[#52646A] line-clamp-3 leading-relaxed mb-4">
                                             {event.description || 'Mari hadir dan makmurkan kegiatan ibadah serta pengajian di masjid.'}
                                         </p>
                                     </div>
 
-                                    <div className="pt-4 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
+                                    <div className="pt-4 border-t border-slate-100 text-[11px] text-[#52646A] flex items-center justify-between">
                                         <span>⏰ {event.time || 'Waktu sholat'}</span>
                                         <span>📍 {event.location || 'Masjid'}</span>
                                     </div>
@@ -334,21 +484,21 @@ export default function Home({
                 </div>
             </div>
 
-            {/* ═══ 5. PENGURUS TAKMIR MASJID ═══ */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+            {/* ═══ 7. PENGURUS TAKMIR MASJID ═══ */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
                 <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
                     <div>
-                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase tracking-widest bg-emerald-100 px-3 py-1 rounded-full mb-2">
-                            <Users className="w-3.5 h-3.5 text-emerald-700" />
+                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0B5A49] uppercase tracking-widest bg-[#E7F5EF] px-3.5 py-1 rounded-full mb-2">
+                            <Users className="w-3.5 h-3.5 text-[#073F35]" />
                             <span>Struktur Takmir</span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+                        <h2 className="text-2xl sm:text-3xl font-black text-[#102D31]">
                             Pengurus Masjid Nurul Huda
                         </h2>
                     </div>
                     <Link 
                         href="/pengurus"
-                        className="inline-flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-800 group"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-[#073F35] hover:text-[#0B5A49] group"
                     >
                         <span>Seluruh Pengurus</span>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -359,54 +509,54 @@ export default function Home({
                     {leadMembers.map((member) => (
                         <div 
                             key={member.id}
-                            className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-lg border border-slate-200/80 transition-all text-center group"
+                            className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-lg border border-[#DCE6E1] transition-all text-center group"
                         >
-                            <div className="w-20 h-20 rounded-2xl mx-auto mb-4 overflow-hidden shadow-md bg-gradient-to-br from-emerald-500 to-teal-700 p-0.5">
+                            <div className="w-20 h-20 rounded-2xl mx-auto mb-4 overflow-hidden shadow-md bg-gradient-to-br from-[#073F35] to-[#16745E] p-0.5">
                                 {member.photo ? (
                                     <img src={`/storage/${member.photo}`} alt={member.name} className="w-full h-full object-cover rounded-2xl" />
                                 ) : (
-                                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-emerald-800 font-black text-xl rounded-2xl">
+                                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-[#073F35] font-black text-xl rounded-2xl">
                                         {member.name.charAt(0)}
                                     </div>
                                 )}
                             </div>
 
-                            <span className="inline-block text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 mb-2">
+                            <span className="inline-block text-[11px] font-bold text-[#073F35] bg-[#E7F5EF] px-2.5 py-1 rounded-full border border-emerald-200 mb-2">
                                 {member.position}
                             </span>
-                            <h3 className="font-extrabold text-slate-900 text-sm sm:text-base group-hover:text-emerald-700 transition">
+                            <h3 className="font-extrabold text-[#102D31] text-sm sm:text-base group-hover:text-[#0B5A49] transition">
                                 {member.name}
                             </h3>
-                            <p className="text-[11px] text-slate-500 mt-1">Periode {member.period || '2024-2029'}</p>
+                            <p className="text-[11px] text-[#52646A] mt-1">Periode {member.period || '2024-2029'}</p>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* ═══ 6. LOKASI MASJID ═══ */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-                <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80">
+            {/* ═══ 8. LOKASI MASJID ═══ */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+                <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#DCE6E1]">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
                         <div>
-                            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase tracking-widest bg-emerald-100 px-3 py-1 rounded-full mb-3">
-                                <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0B5A49] uppercase tracking-widest bg-[#E7F5EF] px-3.5 py-1 rounded-full mb-3">
+                                <MapPin className="w-3.5 h-3.5 text-[#073F35]" />
                                 <span>Alamat & Lokasi</span>
                             </div>
-                            <h2 className="text-2xl font-black text-slate-900 mb-2">
+                            <h2 className="text-2xl font-black text-[#102D31] mb-2">
                                 Kunjungi Masjid Kami
                             </h2>
-                            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                            <p className="text-xs sm:text-sm text-[#52646A] leading-relaxed mb-4">
                                 {profile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461'}
                             </p>
-                            <div className="space-y-2 text-xs text-slate-600 mb-6">
+                            <div className="space-y-2 text-xs text-[#52646A] mb-6">
                                 <p className="flex items-center gap-2">
-                                    <PhoneCall className="w-4 h-4 text-emerald-600" />
+                                    <PhoneCall className="w-4 h-4 text-[#0B5A49]" />
                                     <span>Call Center: {profile?.phone || '081234567890'}</span>
                                 </p>
                             </div>
                             <Link 
                                 href="/kontak"
-                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-bold transition shadow-md"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#073F35] hover:bg-[#0B5A49] text-white rounded-xl text-xs sm:text-sm font-bold transition shadow-md"
                             >
                                 <span>Kirim Pesan ke Takmir</span>
                                 <ArrowRight className="w-4 h-4" />

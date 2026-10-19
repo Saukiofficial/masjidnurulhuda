@@ -89,10 +89,17 @@ class MosqueProfileResource extends Resource
                                     ->columnSpanFull(),
 
                                 Forms\Components\FileUpload::make('hero_image')
-                                    ->label('Foto Utama Masjid')
+                                    ->label('Foto Utama Hero Section (Latar Belakang Beranda)')
                                     ->image()
                                     ->imageEditor()
+                                    ->imageEditorAspectRatios([
+                                        '16:9',
+                                        '21:9',
+                                        '4:3',
+                                    ])
                                     ->directory('profile')
+                                    ->maxSize(5120) // Maksimal 5MB
+                                    ->helperText('📐 Rekomendasi Foto: Format JPG / WebP, rasio lanskap 16:9 (resolusi minimal 1920 × 1080 px, ideal 2400 × 1350 px, maksimal 5MB). Tips Komposisi: Usahakan kubah dan menara masjid berada di sisi kanan/tengah frame foto agar teks sambutan beranda di sisi kiri tetap kontras dan mudah dibaca.')
                                     ->columnSpanFull(),
                             ]),
 
