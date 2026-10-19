@@ -164,47 +164,47 @@ export default function MainLayout({ children }) {
             {/* FOOTER */}
             <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 pt-14 pb-8 mt-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 mb-12">
                         {/* Kolom 1: Profil */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-amber-300 font-bold shadow-md">
-                                    <Building2 className="w-5 h-5" />
+                        <div className="space-y-3 sm:space-y-4">
+                            <div className="flex items-center gap-2.5 sm:gap-3">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-amber-300 font-bold shadow-md flex-shrink-0">
+                                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
                                 </div>
-                                <h2 className="text-xl font-extrabold text-white tracking-wide">
+                                <h2 className="text-base sm:text-xl font-extrabold text-white tracking-wide leading-tight">
                                     {mosqueName}
                                 </h2>
                             </div>
-                            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                            <p className="text-[11px] sm:text-sm text-slate-400 leading-relaxed">
                                 {sharedProfile?.tagline || 'Pusat Ibadah, Dakwah, dan Ukhuwah Jamaah Masyarakat Desa Poreh, Lenteng, Sumenep.'}
                             </p>
-                            <div className="pt-2">
-                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-800/80 text-[11px] text-emerald-300 font-medium">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    <span>Laporan Kas Terbuka & Realtime</span>
+                            <div className="pt-1 sm:pt-2">
+                                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-emerald-950/80 border border-emerald-800/80 text-[10px] sm:text-[11px] text-emerald-300 font-medium">
+                                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span>Kas Terbuka & Realtime</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Kolom 2: Navigasi Cepat */}
                         <div>
-                            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-                                <span className="w-1.5 h-4 bg-emerald-500 rounded-full"></span>
+                            <h3 className="text-white font-bold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+                                <span className="w-1.5 h-3.5 sm:h-4 bg-emerald-500 rounded-full"></span>
                                 Navigasi
                             </h3>
-                            <ul className="space-y-2 text-xs sm:text-sm">
+                            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                                 {navItems.map((item) => (
                                     <li key={item.href}>
-                                        <Link href={item.href} className="text-slate-400 hover:text-emerald-400 transition flex items-center gap-1.5">
-                                            <ChevronRight className="w-3.5 h-3.5 text-emerald-600" />
-                                            {item.label}
+                                        <Link href={item.href} className="text-slate-400 hover:text-emerald-400 transition flex items-center gap-1 sm:gap-1.5">
+                                            <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600 flex-shrink-0" />
+                                            <span className="truncate">{item.label}</span>
                                         </Link>
                                     </li>
                                 ))}
                                 <li>
-                                    <a href="/admin" className="text-amber-400/90 hover:text-amber-300 transition flex items-center gap-1.5 font-medium">
-                                        <ChevronRight className="w-3.5 h-3.5 text-amber-500" />
-                                        Login Takmir (Admin)
+                                    <a href="/admin" className="text-amber-400/90 hover:text-amber-300 transition flex items-center gap-1 sm:gap-1.5 font-medium">
+                                        <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 flex-shrink-0" />
+                                        <span className="truncate">Login Takmir</span>
                                     </a>
                                 </li>
                             </ul>
@@ -212,43 +212,43 @@ export default function MainLayout({ children }) {
 
                         {/* Kolom 3: Kontak & Layanan */}
                         <div>
-                            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-                                <span className="w-1.5 h-4 bg-emerald-500 rounded-full"></span>
+                            <h3 className="text-white font-bold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+                                <span className="w-1.5 h-3.5 sm:h-4 bg-emerald-500 rounded-full"></span>
                                 Hubungi Takmir
                             </h3>
-                            <ul className="space-y-3 text-xs sm:text-sm text-slate-400">
-                                <li className="flex items-start gap-2.5">
-                                    <MapPin className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                                    <span>{mosqueAddress}</span>
+                            <ul className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm text-slate-400">
+                                <li className="flex items-start gap-2">
+                                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                                    <span className="text-[11px] sm:text-xs leading-relaxed">{mosqueAddress}</span>
                                 </li>
-                                <li className="flex items-center gap-2.5">
-                                    <PhoneCall className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                                    <a href={`https://wa.me/${mosquePhone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition">
+                                <li className="flex items-center gap-2">
+                                    <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 flex-shrink-0" />
+                                    <a href={`https://wa.me/${mosquePhone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition truncate text-[11px] sm:text-xs">
                                         WA: {mosquePhone}
                                     </a>
                                 </li>
-                                <li className="flex items-center gap-2.5">
-                                    <Mail className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                                    <span>{mosqueEmail}</span>
+                                <li className="flex items-center gap-2">
+                                    <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 flex-shrink-0" />
+                                    <span className="truncate text-[11px] sm:text-xs">{mosqueEmail}</span>
                                 </li>
                             </ul>
                         </div>
 
                         {/* Kolom 4: Rekening Donasi */}
                         <div>
-                            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-                                <span className="w-1.5 h-4 bg-amber-400 rounded-full"></span>
+                            <h3 className="text-white font-bold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+                                <span className="w-1.5 h-3.5 sm:h-4 bg-amber-400 rounded-full"></span>
                                 Infaq & Donasi
                             </h3>
-                            <p className="text-xs text-slate-400 mb-3 leading-relaxed">
-                                Donasi dapat disalurkan melalui rekening kas resmi takmir masjid berikut:
+                            <p className="text-[11px] sm:text-xs text-slate-400 mb-2.5 leading-relaxed">
+                                Rekening kas resmi takmir masjid:
                             </p>
                             <div className="space-y-2">
                                 {sharedBankAccounts.slice(0, 2).map((bank) => (
-                                    <div key={bank.id} className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs">
+                                    <div key={bank.id} className="p-2 sm:p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-[11px] sm:text-xs">
                                         <p className="font-bold text-slate-200">{bank.bank_name}</p>
-                                        <p className="text-amber-400 font-mono tracking-wider">{bank.account_number}</p>
-                                        <p className="text-[10px] text-slate-400">a.n. {bank.account_name}</p>
+                                        <p className="text-amber-400 font-mono tracking-wider font-semibold">{bank.account_number}</p>
+                                        <p className="text-[10px] text-slate-400 truncate">a.n. {bank.account_name}</p>
                                     </div>
                                 ))}
                             </div>
