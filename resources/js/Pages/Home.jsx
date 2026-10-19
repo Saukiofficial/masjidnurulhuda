@@ -56,21 +56,22 @@ export default function Home({
         <MainLayout>
             <Head title={`Beranda - ${mosqueName}`} />
 
-            {/* ═══ 1. HERO SECTION (REDESIGNED) ═══ */}
+            {/* ═══ 1. HERO SECTION (UNIFIED SEJAJAR KESAMPING: MOBILE & DESKTOP) ═══ */}
             <div className="relative bg-[#FCFCF8] overflow-hidden border-b border-[#E2EBE6]">
-                {/* Latar Belakang Foto Arsitektur Masjid di Sisi Kanan (Desktop) */}
-                <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-[58%] h-full pointer-events-none select-none overflow-hidden">
+                {/* Latar Belakang Foto Arsitektur Masjid di Sisi Kanan (Aktif di SEMUA Layar: Mobile, Tablet, Desktop) */}
+                <div className="absolute right-0 top-0 bottom-0 w-[52%] sm:w-[54%] lg:w-[58%] h-full pointer-events-none select-none overflow-hidden">
                     <img 
                         src={heroImageUrl} 
                         alt="Arsitektur Masjid Nurul Huda" 
                         className="w-full h-full object-cover object-center transform scale-105"
                     />
 
-                    {/* Gradient Fade Lembut dari Kiri ke Kanan agar Teks Kontras */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#FCFCF8] via-[#FCFCF8]/85 via-25% to-transparent"></div>
+                    {/* Gradient Fade Lembut dari Kiri ke Kanan agar Teks Kontras Sempurna */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#FCFCF8] via-[#FCFCF8]/92 via-20% sm:via-25% to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#FCFCF8]/70 via-transparent to-transparent sm:hidden"></div>
 
                     {/* Ornamen Garis Arch Emas Halus Pembingkai Kubah */}
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 600 650" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-50 sm:opacity-90" viewBox="0 0 600 650" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path 
                             d="M 60 300 L 60 190 Q 60 70, 180 70 L 220 70 Q 300 20, 320 0" 
                             stroke="#D8B45A" 
@@ -81,7 +82,7 @@ export default function Home({
                     </svg>
 
                     {/* Kurva Hijau & Emas Elegan di Sudut Bawah Kanan */}
-                    <div className="absolute -bottom-8 -right-8 w-64 h-36 pointer-events-none opacity-90">
+                    <div className="absolute -bottom-6 -right-6 sm:-bottom-8 sm:-right-8 w-44 sm:w-64 h-24 sm:h-36 pointer-events-none opacity-90">
                         <svg viewBox="0 0 250 140" fill="none" className="w-full h-full">
                             <path d="M 0 140 Q 140 100, 250 20 L 250 140 Z" fill="#073F35" />
                             <path d="M 0 140 Q 140 100, 250 20" stroke="#D8B45A" strokeWidth="2.5" fill="none" />
@@ -89,75 +90,60 @@ export default function Home({
                     </div>
                 </div>
 
-                {/* Kontainer Konten Hero */}
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-14 pb-14 sm:pb-24 lg:pb-32">
-                    <div className="max-w-2xl lg:max-w-xl xl:max-w-2xl">
+                {/* Kontainer Konten Hero (Sejajar ke Samping Berdampingan dengan Foto) */}
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 sm:pt-14 pb-14 sm:pb-24 lg:pb-32">
+                    <div className="w-[72%] sm:w-[68%] lg:max-w-xl xl:max-w-2xl">
                         {/* Basmalah dengan Garis Emas Halus */}
-                        <div className="inline-flex items-center gap-3 mb-4 sm:mb-6">
-                            <span className="w-8 sm:w-12 h-[1px] bg-[#D8B45A]/80"></span>
-                            <span className="text-[#073F35] text-base sm:text-xl font-serif tracking-wide" style={{ fontFamily: 'serif' }}>
+                        <div className="inline-flex items-center gap-2 sm:gap-3 mb-3 sm:mb-6">
+                            <span className="w-5 sm:w-12 h-[1px] bg-[#D8B45A]/80"></span>
+                            <span className="text-[#073F35] text-xs sm:text-base lg:text-xl font-serif tracking-wide" style={{ fontFamily: 'serif' }}>
                                 بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
                             </span>
-                            <span className="w-8 sm:w-12 h-[1px] bg-[#D8B45A]/80"></span>
+                            <span className="w-5 sm:w-12 h-[1px] bg-[#D8B45A]/80"></span>
                         </div>
 
                         {/* Headline Utama */}
-                        <h1 className="text-3xl sm:text-5xl lg:text-[3.25rem] font-black text-[#102D31] tracking-tight leading-[1.08] mb-4 sm:mb-5">
+                        <h1 className="text-2xl sm:text-4xl lg:text-[3.25rem] font-black text-[#102D31] tracking-tight leading-[1.12] sm:leading-[1.08] mb-3 sm:mb-5">
                             Selamat Datang di<br />
                             Portal Resmi Masjid<br />
                             <span className="text-[#0B5A49]">Nurul Huda</span>
                         </h1>
 
                         {/* Deskripsi */}
-                        <p className="text-sm sm:text-base text-[#52646A] leading-relaxed max-w-lg mb-6 sm:mb-8 font-normal">
+                        <p className="text-xs sm:text-base text-[#52646A] leading-relaxed max-w-sm sm:max-w-lg mb-5 sm:mb-8 font-normal">
                             Menjaga amanah jamaah dengan keterbukaan informasi, transparansi dana donasi, dan pelayanan umat yang amanah.
                         </p>
 
                         {/* 3 Tombol CTA Hero */}
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                             {/* CTA Primer */}
                             <Link
                                 href="/keuangan"
-                                className="px-5 sm:px-6 py-3.5 rounded-2xl bg-[#073F35] hover:bg-[#0B5A49] text-white font-bold text-xs sm:text-sm shadow-[0_6px_18px_rgba(7,63,53,0.22)] hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group"
+                                className="px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#073F35] hover:bg-[#0B5A49] text-white font-bold text-xs sm:text-sm shadow-[0_6px_18px_rgba(7,63,53,0.22)] hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group"
                             >
-                                <HeartHandshake className="w-4 h-4 text-emerald-300" />
-                                <span>Laporan Keuangan & Kas</span>
-                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                <HeartHandshake className="w-4 h-4 text-emerald-300 flex-shrink-0" />
+                                <span className="truncate">Laporan Keuangan & Kas</span>
+                                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                             </Link>
 
-                            {/* CTA Sekunder 1 */}
-                            <Link
-                                href="/pengurus"
-                                className="px-5 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-[#0B5A49] font-bold text-xs sm:text-sm border border-[#DCE6E1] shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center gap-2"
-                            >
-                                <Users className="w-4 h-4 text-[#0B5A49]" />
-                                <span>Pengurus Takmir</span>
-                            </Link>
+                            {/* Tombol Sekunder Pengurus & Agenda */}
+                            <div className="flex items-center gap-2">
+                                <Link
+                                    href="/pengurus"
+                                    className="flex-1 sm:flex-initial px-3 sm:px-5 py-2 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 text-[#0B5A49] font-bold text-xs sm:text-sm border border-[#DCE6E1] shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center gap-1.5 sm:gap-2"
+                                >
+                                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B5A49] flex-shrink-0" />
+                                    <span>Pengurus</span>
+                                </Link>
 
-                            {/* CTA Sekunder 2 */}
-                            <Link
-                                href="/kegiatan"
-                                className="px-5 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-[#0B5A49] font-bold text-xs sm:text-sm border border-[#DCE6E1] shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center gap-2"
-                            >
-                                <Calendar className="w-4 h-4 text-[#0B5A49]" />
-                                <span>Agenda & Kegiatan</span>
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* Tampilan Foto Masjid Khusus Layar Ponsel (Mobile) */}
-                    <div className="lg:hidden mt-8 rounded-3xl overflow-hidden relative shadow-lg border border-[#DCE6E1]">
-                        <img 
-                            src={heroImageUrl} 
-                            alt="Masjid Nurul Huda" 
-                            className="w-full h-56 sm:h-72 object-cover object-center"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                        <div className="absolute bottom-3 left-4 right-4 text-white flex items-center justify-between">
-                            <span className="text-xs font-bold drop-shadow">Kubah & Menara Masjid</span>
-                            <span className="text-[10px] bg-white/20 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/30">
-                                Poreh, Sumenep
-                            </span>
+                                <Link
+                                    href="/kegiatan"
+                                    className="flex-1 sm:flex-initial px-3 sm:px-5 py-2 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 text-[#0B5A49] font-bold text-xs sm:text-sm border border-[#DCE6E1] shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center gap-1.5 sm:gap-2"
+                                >
+                                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B5A49] flex-shrink-0" />
+                                    <span>Agenda</span>
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -246,7 +232,7 @@ export default function Home({
                     <div className="lg:col-span-5">
                         <div className="relative rounded-3xl overflow-hidden shadow-lg border border-[#DCE6E1] group">
                             <img 
-                                src="/images/about-mosque.jpg" 
+                                src={heroImageUrl} 
                                 alt={`Profil ${mosqueName}`}
                                 className="w-full h-56 sm:h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500" 
                             />
