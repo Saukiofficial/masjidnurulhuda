@@ -14,7 +14,7 @@ export default function MainLayout({ children }) {
 
     const mosqueName = sharedProfile?.name || 'Masjid Nurul Huda';
     const mosqueAddress = sharedProfile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kab. Sumenep, Jawa Timur';
-    const mosquePhone = sharedProfile?.phone || '081234567890';
+    const mosquePhone = sharedProfile?.phone || '087853434292';
     const mosqueEmail = sharedProfile?.email || 'takmir@masjidnurulhuda.id';
 
     const navItems = [
@@ -223,7 +223,7 @@ export default function MainLayout({ children }) {
                                 </li>
                                 <li className="flex items-center gap-2">
                                     <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 flex-shrink-0" />
-                                    <a href={`https://wa.me/${mosquePhone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition truncate text-[11px] sm:text-xs">
+                                    <a href={`https://wa.me/${mosquePhone.replace(/\D/g, '').replace(/^0/, '62')}`} target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition truncate text-[11px] sm:text-xs">
                                         WA: {mosquePhone}
                                     </a>
                                 </li>
@@ -330,7 +330,7 @@ export default function MainLayout({ children }) {
 
                         <div className="flex gap-3">
                             <a
-                                href={`https://wa.me/${mosquePhone.replace(/\D/g, '')}?text=${encodeURIComponent('Assalamu\'alaikum Takmir ' + mosqueName + ', saya ingin konfirmasi donasi / infaq...')}`}
+                                href={`https://wa.me/${mosquePhone.replace(/\D/g, '').replace(/^0/, '62')}?text=${encodeURIComponent('Assalamu\'alaikum Takmir ' + mosqueName + ', saya ingin konfirmasi donasi / infaq...')}`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold text-center transition shadow-md flex items-center justify-center gap-2"

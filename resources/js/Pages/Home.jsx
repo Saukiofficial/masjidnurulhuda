@@ -604,7 +604,7 @@ export default function Home({
                             <div className="space-y-2 text-xs text-[#52646A]">
                                 <p className="flex items-center gap-2">
                                     <PhoneCall className="w-4 h-4 text-[#0B5A49] flex-shrink-0" />
-                                    <span>Call Center / WA: {profile?.phone || '081234567890'}</span>
+                                    <span>Call Center / WA: {profile?.phone || '087853434292'}</span>
                                 </p>
                             </div>
 

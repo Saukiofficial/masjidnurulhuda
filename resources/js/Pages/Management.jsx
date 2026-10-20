@@ -99,7 +99,7 @@ export default function Management({ profile, members = [] }) {
                                     {member.phone ? (
                                         <div className="pt-3 border-t border-slate-100 text-center">
                                             <a
-                                                href={`https://wa.me/${member.phone.replace(/\D/g, '')}?text=${encodeURIComponent('Assalamu\'alaikum ' + member.name + ', perkenalkan saya jamaah Masjid Nurul Huda...')}`}
+                                                href={`https://wa.me/${member.phone.replace(/\D/g, '').replace(/^0/, '62')}?text=${encodeURIComponent('Assalamu\'alaikum ' + member.name + ', perkenalkan saya jamaah Masjid Nurul Huda...')}`}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white text-xs font-bold transition border border-emerald-200"

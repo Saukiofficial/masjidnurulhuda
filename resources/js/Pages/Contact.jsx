@@ -9,7 +9,7 @@ import MainLayout from '../Layouts/MainLayout';
 export default function Contact({ profile, bankAccounts = [] }) {
     const mosqueName = profile?.name || 'Masjid Nurul Huda';
     const mosqueAddress = profile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461';
-    const mosquePhone = profile?.phone || '081234567890';
+    const mosquePhone = profile?.phone || '087853434292';
     const mosqueEmail = profile?.email || 'takmir@masjidnurulhuda.id';
     const latitude = profile?.latitude || '-7.040248';
     const longitude = profile?.longitude || '113.783925';
@@ -78,7 +78,7 @@ export default function Contact({ profile, bankAccounts = [] }) {
                             </p>
 
                             <a
-                                href={`https://wa.me/${mosquePhone.replace(/\D/g, '')}?text=${encodeURIComponent('Assalamu\'alaikum Takmir ' + mosqueName + ', saya ingin bertanya mengenai...')}`}
+                                href={`https://wa.me/${mosquePhone.replace(/\D/g, '').replace(/^0/, '62')}?text=${encodeURIComponent('Assalamu\'alaikum Takmir ' + mosqueName + ', saya ingin bertanya mengenai...')}`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition shadow-md"
