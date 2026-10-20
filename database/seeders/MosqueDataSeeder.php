@@ -21,6 +21,8 @@ class MosqueDataSeeder extends Seeder
                 'tagline' => 'Pusat Ibadah, Dakwah, dan Ukhuwah Jamaah Desa Poreh',
                 'address' => 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461',
                 'google_maps_url' => 'https://maps.google.com/?q=Masjid+Nurul+Huda+Poreh+Lenteng+Sumenep',
+                'latitude' => '-7.040241',
+                'longitude' => '113.783915',
                 'phone' => '081234567890',
                 'email' => 'takmir@masjidnurulhuda.id',
                 'history' => 'Masjid Nurul Huda merupakan pusat kegiatan keagamaan dan kemasyarakatan yang didirikan atas dasar kebersamaan dan gotong royong warga desa Poreh, Lenteng, Sumenep. Masjid ini senantiasa aktif dalam memakmurkan sholat berjamaah, pengajian rutin, serta kegiatan sosial kemasyarakatan.',

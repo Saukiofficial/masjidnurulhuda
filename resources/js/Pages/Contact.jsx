@@ -2,7 +2,7 @@ import React from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { 
     PhoneCall, MapPin, Mail, Send, Building2, Wallet, 
-    MessageCircle, Clock, CheckCircle2, AlertCircle 
+    MessageCircle, Clock, CheckCircle2, AlertCircle, Compass, Navigation
 } from 'lucide-react';
 import MainLayout from '../Layouts/MainLayout';
 
@@ -11,6 +11,8 @@ export default function Contact({ profile, bankAccounts = [] }) {
     const mosqueAddress = profile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461';
     const mosquePhone = profile?.phone || '081234567890';
     const mosqueEmail = profile?.email || 'takmir@masjidnurulhuda.id';
+    const latitude = profile?.latitude || '-7.040241';
+    const longitude = profile?.longitude || '113.783915';
 
     const { data, setData, post, processing, errors, reset, recentlySuccessful } = useForm({
         name: '',
@@ -107,10 +109,25 @@ export default function Contact({ profile, bankAccounts = [] }) {
                         </div>
 
                         {/* Embed Google Maps */}
-                        <div className="bg-white rounded-3xl p-3 shadow-sm border border-slate-200/80">
-                            <div className="h-56 rounded-2xl overflow-hidden">
+                        <div className="bg-white rounded-3xl p-4 shadow-sm border border-slate-200/80 space-y-3">
+                            <div className="flex items-center justify-between text-xs text-slate-600">
+                                <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                                    <Compass className="w-4 h-4 text-emerald-600" />
+                                    <span>Koordinat: {latitude}, {longitude}</span>
+                                </div>
+                                <a
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(latitude + ',' + longitude)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-emerald-700 hover:text-emerald-800 font-bold inline-flex items-center gap-1"
+                                >
+                                    <Navigation className="w-3.5 h-3.5" />
+                                    <span>Buka Maps</span>
+                                </a>
+                            </div>
+                            <div className="h-56 rounded-2xl overflow-hidden border border-slate-100">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!3m2!1sid!2sid!4v1771774324154!5m2!1sid!2sid!6m8!1m7!1s8qDKDyXyEEfA9qi9z9rIKA!2m2!1d-7.040240993042894!2d113.7839145327516!3f205.00391180723352!4f-3.6468265286988526!5f0.7820865974627469"
+                                    src={`https://maps.google.com/maps?q=${latitude},${longitude}&hl=id&z=16&output=embed`}
                                     className="w-full h-full"
                                     style={{ border: 0 }}
                                     allowFullScreen=""

@@ -3,7 +3,8 @@ import { Head, Link } from '@inertiajs/react';
 import { 
     Building2, Wallet, TrendingUp, TrendingDown, Clock, Activity, 
     Calendar, Users, MapPin, ArrowRight, ChevronRight, PhoneCall,
-    Sparkles, ShieldCheck, HeartHandshake, Play, CheckCircle2
+    Sparkles, ShieldCheck, HeartHandshake, Play, CheckCircle2,
+    Compass, Navigation, Copy, Check
 } from 'lucide-react';
 import MainLayout from '../Layouts/MainLayout';
 
@@ -51,6 +52,16 @@ export default function Home({
     const heroImageUrl = profile?.hero_image 
         ? ('/storage/' + profile.hero_image) 
         : '/images/hero-mosque.jpg';
+
+    const latitude = profile?.latitude || '-7.040241';
+    const longitude = profile?.longitude || '113.783915';
+    const [copiedCoords, setCopiedCoords] = useState(false);
+
+    const copyCoordinates = () => {
+        navigator.clipboard.writeText(`${latitude}, ${longitude}`);
+        setCopiedCoords(true);
+        setTimeout(() => setCopiedCoords(false), 2500);
+    };
 
     return (
         <MainLayout>
@@ -522,36 +533,103 @@ export default function Home({
             {/* ═══ 8. LOKASI MASJID ═══ */}
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
                 <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#DCE6E1]">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-                        <div>
-                            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0B5A49] uppercase tracking-widest bg-[#E7F5EF] px-3.5 py-1 rounded-full mb-3">
-                                <MapPin className="w-3.5 h-3.5 text-[#073F35]" />
-                                <span>Alamat & Lokasi</span>
-                            </div>
-                            <h2 className="text-2xl font-black text-[#102D31] mb-2">
-                                Kunjungi Masjid Kami
-                            </h2>
-                            <p className="text-xs sm:text-sm text-[#52646A] leading-relaxed mb-4">
-                                {profile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461'}
-                            </p>
-                            <div className="space-y-2 text-xs text-[#52646A] mb-6">
-                                <p className="flex items-center gap-2">
-                                    <PhoneCall className="w-4 h-4 text-[#0B5A49]" />
-                                    <span>Call Center: {profile?.phone || '081234567890'}</span>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                        {/* Kolom Kiri: Informasi Lokasi & Koordinat GPS (5 Kolom) */}
+                        <div className="lg:col-span-5 space-y-5">
+                            <div>
+                                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0B5A49] uppercase tracking-widest bg-[#E7F5EF] px-3.5 py-1 rounded-full mb-3">
+                                    <MapPin className="w-3.5 h-3.5 text-[#073F35]" />
+                                    <span>Alamat & Lokasi</span>
+                                </div>
+                                <h2 className="text-2xl font-black text-[#102D31] mb-2">
+                                    Kunjungi Masjid Kami
+                                </h2>
+                                <p className="text-xs sm:text-sm text-[#52646A] leading-relaxed">
+                                    {profile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461'}
                                 </p>
                             </div>
-                            <Link 
-                                href="/kontak"
-                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#073F35] hover:bg-[#0B5A49] text-white rounded-xl text-xs sm:text-sm font-bold transition shadow-md"
-                            >
-                                <span>Kirim Pesan ke Takmir</span>
-                                <ArrowRight className="w-4 h-4" />
-                            </Link>
+
+                            {/* Kotak Informasi Koordinat GPS (Latitude & Longitude) */}
+                            <div className="p-4 rounded-2xl bg-[#FCFCF8] border border-[#DCE6E1] space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Compass className="w-4 h-4 text-[#0B5A49]" />
+                                        <span className="text-xs font-bold text-[#102D31] uppercase tracking-wider">
+                                            Koordinat GPS
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={copyCoordinates}
+                                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0B5A49] hover:text-[#073F35] bg-[#E7F5EF] hover:bg-[#d8efe5] px-2.5 py-1 rounded-lg transition"
+                                        title="Salin koordinat"
+                                    >
+                                        {copiedCoords ? (
+                                            <>
+                                                <Check className="w-3 h-3 text-emerald-600" />
+                                                <span className="text-emerald-700 font-bold">Tersalin!</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="w-3 h-3" />
+                                                <span>Salin</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2.5">
+                                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/80">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                                            Latitude (Lintang)
+                                        </p>
+                                        <p className="font-mono text-xs sm:text-sm font-bold text-[#102D31]">
+                                            {latitude}
+                                        </p>
+                                    </div>
+                                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/80">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                                            Longitude (Bujur)
+                                        </p>
+                                        <p className="font-mono text-xs sm:text-sm font-bold text-[#102D31]">
+                                            {longitude}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2 text-xs text-[#52646A]">
+                                <p className="flex items-center gap-2">
+                                    <PhoneCall className="w-4 h-4 text-[#0B5A49] flex-shrink-0" />
+                                    <span>Call Center / WA: {profile?.phone || '081234567890'}</span>
+                                </p>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                                <a
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(latitude + ',' + longitude)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#073F35] hover:bg-[#0B5A49] text-white rounded-xl text-xs sm:text-sm font-bold transition shadow-md shadow-[#073F35]/20"
+                                >
+                                    <Navigation className="w-4 h-4 text-emerald-300" />
+                                    <span>Buka Petunjuk Arah</span>
+                                </a>
+
+                                <Link 
+                                    href="/kontak"
+                                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 text-[#0B5A49] border border-[#DCE6E1] rounded-xl text-xs sm:text-sm font-bold transition shadow-sm"
+                                >
+                                    <span>Kontak Takmir</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </div>
                         </div>
 
-                        <div className="lg:col-span-2 h-64 sm:h-80 rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
+                        {/* Kolom Kanan: Peta Interaktif (7 Kolom) */}
+                        <div className="lg:col-span-7 h-72 sm:h-96 rounded-2xl overflow-hidden border border-slate-200 shadow-inner relative">
                             <iframe
-                                src="https://www.google.com/maps/embed?pb=!3m2!1sid!2sid!4v1771774324154!5m2!1sid!2sid!6m8!1m7!1s8qDKDyXyEEfA9qi9z9rIKA!2m2!1d-7.040240993042894!2d113.7839145327516!3f205.00391180723352!4f-3.6468265286988526!5f0.7820865974627469"
+                                src={`https://maps.google.com/maps?q=${latitude},${longitude}&hl=id&z=16&output=embed`}
                                 className="w-full h-full"
                                 style={{ border: 0 }}
                                 allowFullScreen=""

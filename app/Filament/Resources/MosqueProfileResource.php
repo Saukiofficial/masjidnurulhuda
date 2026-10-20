@@ -71,6 +71,16 @@ class MosqueProfileResource extends Resource
                                     ->label('Link Google Maps / Lokasi')
                                     ->placeholder('https://maps.google.com/...')
                                     ->columnSpanFull(),
+
+                                Forms\Components\TextInput::make('latitude')
+                                    ->label('Garis Lintang (Latitude)')
+                                    ->placeholder('Contoh: -7.040241')
+                                    ->helperText('Koordinat garis lintang (latitude) lokasi masjid'),
+
+                                Forms\Components\TextInput::make('longitude')
+                                    ->label('Garis Bujur (Longitude)')
+                                    ->placeholder('Contoh: 113.783915')
+                                    ->helperText('Koordinat garis bujur (longitude) lokasi masjid'),
                             ])->columns(2),
 
                         Forms\Components\Tabs\Tab::make('Tampilan Beranda')
