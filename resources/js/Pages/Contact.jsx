@@ -11,8 +11,11 @@ export default function Contact({ profile, bankAccounts = [] }) {
     const mosqueAddress = profile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461';
     const mosquePhone = profile?.phone || '081234567890';
     const mosqueEmail = profile?.email || 'takmir@masjidnurulhuda.id';
-    const latitude = profile?.latitude || '-7.040241';
-    const longitude = profile?.longitude || '113.783915';
+    const latitude = profile?.latitude || '-7.040248';
+    const longitude = profile?.longitude || '113.783925';
+    const embedMapUrl = (profile?.google_maps_url && profile.google_maps_url.includes('google.com/maps'))
+        ? profile.google_maps_url
+        : 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.736284281551!2d113.7839247007676!3d-7.040247592745691!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd9e7005a487b57%3A0x6091410510269436!2sMasjid%20Nurul%20Huda!5e0!3m2!1sid!2sid!4v1792459452356!5m2!1sid!2sid';
 
     const { data, setData, post, processing, errors, reset, recentlySuccessful } = useForm({
         name: '',
@@ -127,12 +130,12 @@ export default function Contact({ profile, bankAccounts = [] }) {
                             </div>
                             <div className="h-56 rounded-2xl overflow-hidden border border-slate-100">
                                 <iframe
-                                    src={`https://maps.google.com/maps?q=${latitude},${longitude}&hl=id&z=16&output=embed`}
+                                    src={embedMapUrl}
                                     className="w-full h-full"
                                     style={{ border: 0 }}
                                     allowFullScreen=""
                                     loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
+                                    referrerPolicy="strict-origin-when-cross-origin"
                                     title="Peta Lokasi Masjid Nurul Huda"
                                 ></iframe>
                             </div>
