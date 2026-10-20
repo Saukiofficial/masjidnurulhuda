@@ -8,7 +8,7 @@ import MainLayout from '../Layouts/MainLayout';
 
 export default function Contact({ profile, bankAccounts = [] }) {
     const mosqueName = profile?.name || 'Masjid Nurul Huda';
-    const mosqueAddress = profile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461';
+    const mosqueAddress = profile?.address || 'Jl. Siding Puri 002/001, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461';
     const mosquePhone = profile?.phone || '087853434292';
     const mosqueEmail = profile?.email || 'takmir@masjidnurulhuda.id';
     const latitude = profile?.latitude || '-7.040248';

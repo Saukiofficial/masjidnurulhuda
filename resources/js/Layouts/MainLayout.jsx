@@ -13,7 +13,7 @@ export default function MainLayout({ children }) {
     const [copiedIndex, setCopiedIndex] = useState(null);
 
     const mosqueName = sharedProfile?.name || 'Masjid Nurul Huda';
-    const mosqueAddress = sharedProfile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kab. Sumenep, Jawa Timur';
+    const mosqueAddress = sharedProfile?.address || 'Jl. Siding Puri 002/001, Poreh, Kec. Lenteng, Kab. Sumenep, Jawa Timur';
     const mosquePhone = sharedProfile?.phone || '087853434292';
     const mosqueEmail = sharedProfile?.email || 'takmir@masjidnurulhuda.id';
 

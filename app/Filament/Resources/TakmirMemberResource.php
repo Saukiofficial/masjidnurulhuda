@@ -35,7 +35,7 @@ class TakmirMemberResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->label('Nama Lengkap & Gelar')
-                            ->placeholder('Contoh: Ust. Muhammad Mansyur, S.Pd.I')
+                            ->placeholder('Contoh: Ahmad Khairi')
                             ->required()
                             ->maxLength(255),
 

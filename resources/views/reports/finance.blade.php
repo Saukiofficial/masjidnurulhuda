@@ -29,7 +29,7 @@
 
     <div class="header">
         <h1>Masjid Nurul Huda</h1>
-        <p>Poreh, Kecamatan Lenteng, Kabupaten Sumenep,<br>Jl. KaliMas, Poreh, Kec. Lenteng, Kab. Sumenep, Provinsi Jawa Timur</p>
+        <p>Poreh, Kecamatan Lenteng, Kabupaten Sumenep,<br>Jl. Siding Puri 002/001, Poreh, Kec. Lenteng, Kab. Sumenep, Provinsi Jawa Timur</p>
         <p>Laporan Keuangan Masjid Nurul Huda </p>
     </div>
 

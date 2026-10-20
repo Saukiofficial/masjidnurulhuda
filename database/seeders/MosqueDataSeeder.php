@@ -19,7 +19,7 @@ class MosqueDataSeeder extends Seeder
             MosqueProfile::create([
                 'name' => 'Masjid Nurul Huda',
                 'tagline' => 'Pusat Ibadah, Dakwah, dan Ukhuwah Jamaah Desa Poreh',
-                'address' => 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461',
+                'address' => 'Jl. Siding Puri 002/001, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461',
                 'google_maps_url' => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.736284281551!2d113.7839247007676!3d-7.040247592745691!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd9e7005a487b57%3A0x6091410510269436!2sMasjid%20Nurul%20Huda!5e0!3m2!1sid!2sid!4v1792459452356!5m2!1sid!2sid',
                 'latitude' => '-7.040248',
                 'longitude' => '113.783925',
@@ -70,7 +70,7 @@ class MosqueDataSeeder extends Seeder
                     'sort_order' => 1,
                 ],
                 [
-                    'name' => 'Ust. Muhammad Mansyur, S.Pd.I',
+                    'name' => 'Ahmad Khairi',
                     'position' => 'Ketua Takmir',
                     'period' => '2024 - 2029',
                     'phone' => '087853434292',
@@ -121,7 +121,7 @@ class MosqueDataSeeder extends Seeder
                 [
                     'title' => 'Kajian Rutin Tafsir Al-Qur\'an',
                     'category' => 'Kajian',
-                    'speaker' => 'Ust. Muhammad Mansyur, S.Pd.I',
+                    'speaker' => 'Ahmad Khairi',
                     'date' => now()->addDays(2)->toDateString(),
                     'time' => 'Ba\'da Sholat Maghrib - Isya',
                     'location' => 'Ruang Utama Masjid Nurul Huda',

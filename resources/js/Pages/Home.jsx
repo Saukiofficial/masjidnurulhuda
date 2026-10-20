@@ -548,7 +548,7 @@ export default function Home({
                                     Kunjungi Masjid Kami
                                 </h2>
                                 <p className="text-xs sm:text-sm text-[#52646A] leading-relaxed">
-                                    {profile?.address || 'Jl. KaliMas, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461'}
+                                    {profile?.address || 'Jl. Siding Puri 002/001, Poreh, Kec. Lenteng, Kabupaten Sumenep, Jawa Timur 69461'}
                                 </p>
                             </div>
 
